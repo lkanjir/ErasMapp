@@ -1,43 +1,48 @@
-# Inicijalne upute za prijavu projekta iz Razvoja aplikacija za mobilne i pametne uređaje
+# ErasMapp
 
-Poštovane kolegice i kolege, 
+## Project team
 
-čestitamo vam jer ste uspješno prijavili svoj projektni tim na kolegiju Razvoj aplikacija za mobilne i pametne uređaje, te je za vas automatski kreiran repozitorij koji ćete koristiti za verzioniranje vašega koda i za jednostavno dokumentiranje istoga.
-
-Ovaj dokument (README.md) predstavlja **osobnu iskaznicu vašeg projekta**. Vaš prvi zadatak je **prijaviti vlastiti projektni prijedlog** na način da ćete prijavu vašeg projekta, sukladno uputama danim u ovom tekstu, napisati upravo u ovaj dokument, umjesto ovoga teksta.
-
-Za upute o sintaksi koju možete koristiti u ovom dokumentu i kod pisanje vaše projektne dokumentacije pogledajte [ovaj link](https://guides.github.com/features/mastering-markdown/).
-Sav programski kod potrebno je verzionirati u glavnoj **master** grani i **obvezno** smjestiti u mapu Software. Sve artefakte (npr. slike) koje ćete koristiti u vašoj dokumentaciju obvezno verzionirati u posebnoj grani koja je već kreirana i koja se naziva **master-docs** i smjestiti u mapu Documentation.
-
-Nakon vaše prijave bit će vam dodijeljen mentor s kojim ćete tijekom semestra raditi na ovom projektu. Mentor će vam slati povratne informacije kroz sekciju Discussions također dostupnu na GitHubu vašeg projekta. A sada, vrijeme je da prijavite vaš projekt. Za prijavu vašeg projektnog prijedloga molimo vas koristite **predložak** koji je naveden u nastavku, a započnite tako da kliknete na *olovku* u desnom gornjem kutu ovoga dokumenta :) 
-
-# Naziv projekta
-(u redak iznad navedite kratki proizvoljni naziv projekta prikladan akademskoj zajednici, a ovaj tekst kao i uvodni tekst iznad obrišite)
-
-## Projektni tim
-(svi članovi tima moraju biti iz iste seminarske grupe)
-
-Ime i prezime | E-mail adresa (FOI) | JMBAG | Github korisničko ime | Seminarska grupa
+First and last name | E-mail address (FOI) | JMBAG | Github username | Seminar group
 ------------  | ------------------- | ----- | --------------------- | ----------------
-Ime i prezime | mojaadresa@foi.hr | 000000000 | githubuser | G01
-Ime i prezime | ... | ... | ... | ...
+Luka Kanjir | lkanjir23@student.foi.hr | 0016164491 | lkanjir23 | G01
+Nikola Kihas | nkihas23@student.foi.hr | 0016165847 | nkihas23 | G01
+Sofiane Saou | ssaou25@student.foi.hr | 0016179480 | 444sofiane | -
 
-## Opis domene
-Umjesto ovih uputa opišite domenu ili problem koji pokrivate vašim projektom. Domena može biti proizvoljna, ali obratite pozornost da sukladno ishodima učenja, domena omogući primjenu zahtijevanih koncepata kako je to navedeno u sljedećem poglavlju. Priložite odgovarajuće skice gdje je to prikladno.
+## Domain description
 
-## Specifikacija projekta
-Umjesto ovih uputa opišite zahtjeve za funkcionalnošću mobilne aplikacije ili aplikacije za pametne uređaje. Pobrojite osnovne funkcionalnosti i za svaku naznačite ime odgovornog člana tima. Opišite osnovnu buduću arhitekturu programskog proizvoda. Obratite pozornost da mobilne aplikacije često zahtijevaju pozadinske servise. Također uzmite u obzir da bi svaki član tima trebao biti odgovoran za otprilike 3 funkcionalnosti, te da bi opterećenje članova tima trebalo biti ujednačeno. Priložite odgovarajuće dijagrame i skice gdje je to prikladno. Funkcionalnosti sustava bobrojite u tablici ispod koristeći predložak koji slijedi:
+ErasMapp is a mobile application designed to help Erasmus exchange students at FOI integrate smoothly into their new environment. The app aims to make their stay in Varaždin more organized, social, and enjoyable by providing all the essential information and tools they need in one place.
 
-Oznaka | Naziv | Kratki opis | Odgovorni član tima
+Through navigation, relevant news, and a communication interface, ErasMapp eases the process of adapting to a new academic and social setting.
+
+Administrators and staff have access to dedicated tools that allow them to manage faculty buildings and rooms, post announcements, and communicate directly with students.
+
+## Project specification
+
+Label | Name | Short description | Responsible team member
 ------ | ----- | ----------- | -------------------
-F01 | Login | Za pristup dnevniku potrebnba je autentikacija korisnika pomoću login funkcionalnosti. Korisnik se logira s podacima koji su mu dodijeljeni prilikom ... | Zlatko Stapić
-F02 | Pregled dnevnika | .... | ...
+F01 | Login | The application should allow users to authenticate using a combination of e-mail and password or by using a Google account. The entered credentials should be validated to ensure authorized access. The system should maintain sessions to keep users logged in after app restarts. | Luka Kanjir
+F02 | Faculty buildings locator | The system should display FOI buildings on an interactive map with their names and details. | Sofiane Saou
+F03 | Room locator | The system should enable users to search for specific rooms in a selected building, and then display directions to the selected room.| Sofiane Saou
+F04 | Nearest point of interest | The system should detect the user’s current location and display nearby facilities such as cafés, libraries, etc. It should allow filtering by type of location and provide the option to open the result in Google Maps. |Sofiane Saou
+F05 | Student channels | The system should provide discussion channels where students can post questions and answer them. | Luka Kanjir
+F06 | News and info | The system should display official announcements and updates published by administrators. It should categorize news by topic and support push notifications for urgent messages. | Luka Kanjir
+F07 | Schedule | The system should allow users to view and modify their personal academic schedules. It should provide both daily and weekly views. | Nikola Kihas
+F08 | Event calendar | The system should present a calendar of upcoming faculty and city events relevant to exchange students. It should display event details, including name, date, time, and location. Administrators should be able to create and manage events through the administration interface. | Nikola Kihas
+F09 | Admin console | The system should provide authorized staff with administrative tools for managing buildings, rooms, events, and news content. It should implement role-based access control to restrict operations to permitted users. | Nikola Kihas
 
-## Tehnologije i oprema
-Umjesto ovih uputa jasno popišite sve tehnologije, alate i opremu koju ćete koristiti pri implementaciji vašeg rješenja. Vaše rješenje može biti implementirano u bilo kojoj tehnologiji za razvoj mobilnih aplikacija ili aplikacija za pametne uređaje osim u hibridnim web tehnologijama kao što su React Native ili HTML+CSS+JS. Tehnologije koje ćete koristiti bi trebale biti javno dostupne, a ako ih ne budemo obrađivali na vježbama u vašoj dokumentaciji ćete morati navesti način preuzimanja, instaliranja i korištenja onih tehnologija koje su neopbodne kako bi se vaš programski proizvod preveo i pokrenuo. Pazite da svi alati koje ćete koristiti moraju imati odgovarajuću licencu. Što se tiče zahtjeva nastavnika, obvezno je koristiti git i GitHub za verzioniranje programskog koda, GitHub Wiki za pisanje jednostavne dokumentacije sukladno uputama mentora, a projektne zadatke je potrebno planirati i pratiti u alatu GitHub projects.
+## Technology and Tools
+#### Technologies
+- Kotlin
+- Android SDK
+- Jetpack Compose
+- Google Maps Platform
+- Firebase
 
-## Baza podataka i web server
-Nastavnici vam mogu pripremiti MySQL bazu podataka i web server na kojem možete postaviti jednostavne web servise. Ako želite da vam pripremimo ove sustave obavezno to navedite umjesto ovog teksta s napomenom "Tražimo pristup serveru na kojemu ćemo moći imati bazu podataka". Alternativno, možete koristiti bilo koji online dostupan sustav kao i studentske licence na pojedinim platformama kao što su Heroku ili Azure. Međutim, budite spremni da vas nastavnici navedu na to da lokalno stvorite okruženje na kojemu se server pokreće i da se aplikacija na istoj mreži spaja na server.
+#### Tools
+ - Android Studio
+ - git and Github
 
-## .gitignore
-Uzmite u obzir da je u mapi Software .gitignore konfiguriran za nekoliko tehnologija, ali samo ako će projekti biti smješteni direktno u mapu Software ali ne i u neku pod mapu. Nakon odabira konačne tehnologije i projekta obavezno dopunite/premjestite gitignore kako bi vaš projekt zadovoljavao kriterije koji su opisani u ReadMe.md dokumentu dostupnom u mapi Software.
+## Database and server
+ - Cloud Firestore
+ - Realtime Database (Firebase)
+ - Firebase Cloud Functions
