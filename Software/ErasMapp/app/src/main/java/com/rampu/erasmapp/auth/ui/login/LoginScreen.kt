@@ -1,4 +1,4 @@
-package com.rampu.erasmapp
+package com.rampu.erasmapp.auth.ui.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,26 +8,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.rampu.erasmapp.auth.domain.UserAccount
-import com.rampu.erasmapp.auth.ui.AuthViewModel
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun TempHome(email: String){
+fun LoginScreen(
+    state: LoginUiState,
+    onEvent: (event: LoginEvent) -> Unit,
+    onNavigateToRegister: () -> Unit
+){
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        Text("Hello $email")
-
-        val vm = koinViewModel<AuthViewModel>()
-
+        Text("Login screen")
         Button(
-            onClick =vm:: signOut
+            onClick = onNavigateToRegister,
         ){
-            Text("Sign out")
+            Text("Register")
         }
     }
-
 }

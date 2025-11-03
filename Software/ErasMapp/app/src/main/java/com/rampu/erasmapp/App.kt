@@ -1,7 +1,8 @@
 package com.rampu.erasmapp
 
 import android.app.Application
-import com.rampu.erasmapp.di.appModule
+import com.rampu.erasmapp.auth.authModule
+import com.rampu.erasmapp.session.sessionModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -11,7 +12,10 @@ class App : Application(){
 
         startKoin {
             androidContext(this@App)
-            modules(appModule)
+            modules(
+                authModule,
+                sessionModule
+            )
         }
 
     }

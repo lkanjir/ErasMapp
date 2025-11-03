@@ -1,10 +1,6 @@
 package com.rampu.erasmapp.auth.data
 
-import android.util.Log
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
-import com.google.firebase.auth.userProfileChangeRequest
 import com.rampu.erasmapp.auth.domain.AuthResult
 import com.rampu.erasmapp.auth.domain.FailureReason
 import com.rampu.erasmapp.auth.domain.IAuthRepository
