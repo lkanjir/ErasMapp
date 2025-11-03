@@ -1,9 +1,14 @@
 package com.rampu.erasmapp.main
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rampu.erasmapp.ui.theme.ErasMappTheme
 
 @Composable
 fun MainGraph(
@@ -11,11 +16,21 @@ fun MainGraph(
 ){
     val navController = rememberNavController()
 
-    //TODO: wrap in Scaffold so we get the same top / bottom bar on all screens
-    NavHost(navController, startDestination = HomeRoute){
-        composable<HomeRoute> {
-            HomeScreen(onSignOut = onSignOut)
+    ErasMappTheme {
+        Scaffold(
+            modifier = Modifier.fillMaxSize()
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = HomeRoute,
+                modifier = Modifier.fillMaxSize().padding(innerPadding)
+            ){
+                composable<HomeRoute> {
+                    HomeScreen(onSignOut = onSignOut)
+                }
+            }
         }
     }
+
 
 }
