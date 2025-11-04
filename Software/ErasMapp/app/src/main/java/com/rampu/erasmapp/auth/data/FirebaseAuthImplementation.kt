@@ -60,7 +60,7 @@ class FirebaseAuthImplementation (private val auth: FirebaseAuth) : IAuthReposit
 
     }
 
-    override suspend fun register(email: String, password: String, name: String): AuthResult {
+    override suspend fun register(email: String, password: String): AuthResult {
         return try{
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val user = result.user ?: return AuthResult.Failure(

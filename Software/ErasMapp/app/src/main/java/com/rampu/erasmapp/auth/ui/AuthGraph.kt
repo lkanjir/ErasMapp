@@ -1,12 +1,10 @@
 package com.rampu.erasmapp.auth.ui
 
-import android.icu.number.Scale
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.traceEventEnd
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -18,7 +16,6 @@ import com.rampu.erasmapp.auth.ui.login.LoginViewModel
 import com.rampu.erasmapp.auth.ui.register.RegisterEffect
 import com.rampu.erasmapp.auth.ui.register.RegisterScreen
 import com.rampu.erasmapp.auth.ui.register.RegisterViewModel
-import com.rampu.erasmapp.main.HomeRoute
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
 import org.koin.androidx.compose.koinViewModel
 

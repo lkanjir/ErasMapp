@@ -18,20 +18,19 @@ class RegisterViewModel (private val repo: IAuthRepository) : ViewModel(){
 
     fun onEvent(event: RegisterEvent){
         when(event){
-            is RegisterEvent.NameChanged -> uiState.update { it.copy(name = event.v, error = null) }
             is RegisterEvent.EmailChanged -> uiState.update { it.copy(email = event.v, error = null) }
             is RegisterEvent.PasswordChanged -> uiState.update { it.copy(password = event.v, error = null) }
+            is RegisterEvent.ConfirmPasswordChanged ->  uiState.update { it.copy(confirmPassword = event.v, error = null) }
             RegisterEvent.Submit -> register()
         }
     }
 
     fun register() = viewModelScope.launch {
-        val name = uiState.value.name
         val email = uiState.value.email
         val password = uiState.value.password
 
         uiState.update { it.copy(isLoading = true, error = null) }
-        when(val result = repo.register(email = email, password = password, name = name)){
+        when(val result = repo.register(email = email, password = password)){
             is AuthResult.Success -> {
                 uiState.update { it.copy(isLoading = false) }
                 effect.emit(RegisterEffect.NavigateHome)
