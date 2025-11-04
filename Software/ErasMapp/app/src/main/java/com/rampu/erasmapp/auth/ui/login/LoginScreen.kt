@@ -22,17 +22,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rampu.erasmapp.R
+import com.rampu.erasmapp.common.ui.components.LabeledInputField
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
 
 @Composable
@@ -50,77 +48,43 @@ fun LoginScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(0.8f)
-            ) {
-                Text(
-                    text = stringResource(R.string.email),
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = state.email,
-                    onValueChange = {
-                        onEvent(LoginEvent.EmailChanged(it))
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(5.dp),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Email,
-                            contentDescription = stringResource(R.string.email),
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            text = stringResource(R.string.email)
-                        )
-                    },
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
+            LabeledInputField(
+                value = state.email,
+                onValueChange = {
+                    onEvent(LoginEvent.EmailChanged(it))
+                },
+                label = stringResource(R.string.email),
+                modifier = Modifier.fillMaxWidth(0.8f),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Email,
+                        contentDescription = stringResource(R.string.email)
                     )
-                )
-            }
+
+                },
+                placeholder = stringResource(R.string.email),
+                isError = false
+            )
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            Column(
-                modifier = Modifier.fillMaxWidth(0.8f)
-            ) {
-                Text(
-                    text = stringResource(R.string.password),
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = state.password,
-                    onValueChange = {
-                        onEvent(LoginEvent.PasswordChanged(it))
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(5.dp),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Lock,
-                            contentDescription = stringResource(R.string.password),
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            text = stringResource(R.string.password)
-                        )
-                    },
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
+            LabeledInputField(
+                value = state.password,
+                onValueChange = {
+                    onEvent(LoginEvent.PasswordChanged(it))
+                },
+                label = stringResource(R.string.password),
+                modifier = Modifier.fillMaxWidth(0.8f),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Lock,
+                        contentDescription = stringResource(R.string.password)
                     )
-                )
-            }
+
+                },
+                placeholder = stringResource(R.string.password),
+                isError = false
+            )
 
             Spacer(modifier = Modifier.height(30.dp))
 
