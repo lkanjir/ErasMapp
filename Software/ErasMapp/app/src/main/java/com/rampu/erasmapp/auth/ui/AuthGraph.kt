@@ -73,7 +73,8 @@ fun AuthGraph(){
 
                     RegisterScreen(
                         state = state.value,
-                        onEvent = vm::onEvent
+                        onEvent = vm::onEvent,
+                        contentPadding = innerPadding
                     )
 
 
