@@ -19,9 +19,9 @@ class RegisterViewModel (private val repo: IAuthRepository) : ViewModel(){
 
     fun onEvent(event: RegisterEvent){
         when(event){
-            is RegisterEvent.EmailChanged -> uiState.update { it.copy(email = event.v, error = null) }
-            is RegisterEvent.PasswordChanged -> uiState.update { it.copy(password = event.v, error = null) }
-            is RegisterEvent.ConfirmPasswordChanged ->  uiState.update { it.copy(confirmPassword = event.v, error = null) }
+            is RegisterEvent.EmailChanged -> uiState.update { it.copy(email = event.v) }
+            is RegisterEvent.PasswordChanged -> uiState.update { it.copy(password = event.v) }
+            is RegisterEvent.ConfirmPasswordChanged ->  uiState.update { it.copy(confirmPassword = event.v) }
             RegisterEvent.Submit -> register()
         }
     }
@@ -44,14 +44,14 @@ class RegisterViewModel (private val repo: IAuthRepository) : ViewModel(){
             return@launch
         }
 
-        uiState.update { it.copy(isLoading = true, error = null) }
+        uiState.update { it.copy(isLoading = true) }
         when(val result = repo.register(email = email, password = password)){
             is AuthResult.Success -> {
                 uiState.update { it.copy(isLoading = false) }
                 effect.emit(RegisterEffect.NavigateHome)
             }
             is AuthResult.Failure -> {
-                uiState.update { it.copy(isLoading = false, error = result.message) }
+                uiState.update { it.copy(isLoading = false) }
                 effect.emit(RegisterEffect.ShowError(result.message ?: "Unknown error"))
             }
         }

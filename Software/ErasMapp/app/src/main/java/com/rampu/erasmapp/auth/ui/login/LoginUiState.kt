@@ -6,8 +6,4 @@ data class LoginUiState (
     val isLoading: Boolean = false,
     val emailError: String? = null,
     val passwordError: String? = null,
-
-    val error: String? = null
 )
-
-//TODO: do i need canSubmit here?

@@ -19,8 +19,8 @@ class LoginViewModel (private val repo: IAuthRepository) : ViewModel(){
 
     fun onEvent(event: LoginEvent){
         when(event){
-            is LoginEvent.EmailChanged -> uiState.update { it.copy(email = event.v, error = null) }
-            is LoginEvent.PasswordChanged -> uiState.update { it.copy(password = event.v, error = null) }
+            is LoginEvent.EmailChanged -> uiState.update { it.copy(email = event.v) }
+            is LoginEvent.PasswordChanged -> uiState.update { it.copy(password = event.v) }
             LoginEvent.Submit -> signIn()
         }
     }
@@ -40,14 +40,14 @@ class LoginViewModel (private val repo: IAuthRepository) : ViewModel(){
             return@launch
         }
 
-        uiState.update { it.copy(isLoading = true, error = null) }
+        uiState.update { it.copy(isLoading = true) }
         when(val result = repo.signIn(email,password)){
             is AuthResult.Success -> {
                 uiState.update { it.copy(isLoading = false) }
                 effect.emit(LoginEffect.NavigateHome)
             }
             is AuthResult.Failure -> {
-                uiState.update { it.copy(isLoading = false, error = result.message) }
+                uiState.update { it.copy(isLoading = false) }
                 effect.emit(LoginEffect.ShowError(result.message ?: "Unknown error"))
             }
         }

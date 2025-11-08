@@ -4,8 +4,13 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -23,9 +28,13 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AuthGraph(){
     val navController = rememberNavController()
+    val snackbarHostState = remember{ SnackbarHostState() }
 
     ErasMappTheme {
         Scaffold(
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            },
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
             NavHost(
@@ -44,7 +53,13 @@ fun AuthGraph(){
                         vm.effect.collect { event ->
                             when(event){
                                 LoginEffect.NavigateHome -> Unit
-                                is LoginEffect.ShowError -> Unit //TODO: need to implement some action when login fails
+                                is LoginEffect.ShowError -> {
+                                    snackbarHostState.showSnackbar(
+                                        message = event.msg,
+                                        duration = SnackbarDuration.Short,
+                                        withDismissAction = true,
+                                    )
+                                }
                             }
                         }
                     }
@@ -66,7 +81,13 @@ fun AuthGraph(){
                         vm.effect.collect { event ->
                             when(event){
                                 RegisterEffect.NavigateHome -> Unit
-                                is RegisterEffect.ShowError -> Unit //TODO: need to implement some action when registration fails
+                                is RegisterEffect.ShowError -> {
+                                    snackbarHostState.showSnackbar(
+                                        message = event.msg,
+                                        duration = SnackbarDuration.Short,
+                                        withDismissAction = true,
+                                    )
+                                }
                             }
                         }
                     }
