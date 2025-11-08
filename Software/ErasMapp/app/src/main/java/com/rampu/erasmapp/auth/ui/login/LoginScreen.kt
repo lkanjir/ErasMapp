@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import com.rampu.erasmapp.R
 import com.rampu.erasmapp.common.ui.LayoutTestPreview
 import com.rampu.erasmapp.common.ui.components.LabeledInputField
+import com.rampu.erasmapp.common.ui.components.LoadingIndicator
 import com.rampu.erasmapp.common.ui.components.Logo
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
 
@@ -106,7 +107,8 @@ fun LoginScreen(
             supportingText = {
                 if(state.emailError != null) Text(text = state.emailError)
             },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            enabled = !state.isLoading
         )
 
         Spacer(Modifier.height(10.dp))
@@ -144,7 +146,8 @@ fun LoginScreen(
                     )
                 }
             },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            enabled = !state.isLoading
         )
 
         Spacer(Modifier.height(10.dp))
@@ -160,11 +163,17 @@ fun LoginScreen(
             contentPadding = PaddingValues(vertical = 15.dp),
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 5.dp
-            )
+            ),
+            enabled = !state.isLoading
         ) {
-            Text(
-                text = stringResource(R.string.sign_in),
-            )
+            if(state.isLoading){
+                LoadingIndicator(modifier = Modifier.size(20.dp))
+            }
+            else{
+                Text(
+                    text = stringResource(R.string.sign_in),
+                )
+            }
         }
 
         Spacer(Modifier.height(20.dp))
@@ -178,7 +187,10 @@ fun LoginScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
             )
-            TextButton(onClick = onNavigateToRegister) {
+            TextButton(
+                onClick = onNavigateToRegister,
+                enabled = !state.isLoading
+            ) {
                 Text(
                     text = stringResource(R.string.sign_up),
                     color = MaterialTheme.colorScheme.primary,
@@ -222,6 +234,7 @@ fun LoginScreen(
             },
             shape = RoundedCornerShape(5.dp),
             contentPadding = PaddingValues(vertical = 15.dp),
+            enabled = !state.isLoading
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

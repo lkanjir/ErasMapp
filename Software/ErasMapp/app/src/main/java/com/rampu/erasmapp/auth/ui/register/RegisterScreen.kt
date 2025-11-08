@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.rampu.erasmapp.R
 import com.rampu.erasmapp.common.ui.LayoutTestPreview
 import com.rampu.erasmapp.common.ui.components.LabeledInputField
+import com.rampu.erasmapp.common.ui.components.LoadingIndicator
 import com.rampu.erasmapp.common.ui.components.Logo
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
 
@@ -78,6 +79,7 @@ fun RegisterScreen(
 
         Spacer(Modifier.height(30.dp))
         LabeledInputField(
+            enabled = !state.isLoading,
             value = state.email,
             onValueChange = {
                 onEvent(RegisterEvent.EmailChanged(it))
@@ -102,6 +104,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         LabeledInputField(
+            enabled = !state.isLoading,
             value = state.password,
             onValueChange = {
                 onEvent(RegisterEvent.PasswordChanged(it))
@@ -140,6 +143,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         LabeledInputField(
+            enabled = !state.isLoading,
             value = state.confirmPassword,
             onValueChange = {
                 onEvent(RegisterEvent.ConfirmPasswordChanged(it))
@@ -178,6 +182,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         Button(
+            enabled = !state.isLoading,
             modifier = Modifier
                 .fillMaxWidth(0.8f),
 
@@ -190,9 +195,14 @@ fun RegisterScreen(
                 defaultElevation = 5.dp
             )
         ) {
-            Text(
-                text = stringResource(R.string.sign_up),
-            )
+            if(state.isLoading){
+                LoadingIndicator(modifier = Modifier.size(20.dp))
+            }
+            else{
+                Text(
+                    text = stringResource(R.string.sign_up),
+                )
+            }
         }
     }
 

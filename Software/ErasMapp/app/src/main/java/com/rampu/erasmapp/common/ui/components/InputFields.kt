@@ -34,7 +34,8 @@ fun LabeledInputField(
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    enabled: Boolean = true
 ) {
     Column(modifier = modifier) {
         Text(
@@ -60,7 +61,8 @@ fun LabeledInputField(
 
             visualTransformation = visualTransformation,
             trailingIcon = trailingIcon,
-            keyboardOptions = keyboardOptions
+            keyboardOptions = keyboardOptions,
+            enabled = enabled
         )
     }
 }
