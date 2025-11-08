@@ -22,7 +22,6 @@ class FirebaseAuthImplementation (private val auth: FirebaseAuth) : IAuthReposit
                 else UserAccount(
                     uid = user.uid,
                     email = user.email,
-                    name = user.displayName
                 )
             )
         }
@@ -43,7 +42,6 @@ class FirebaseAuthImplementation (private val auth: FirebaseAuth) : IAuthReposit
                 user = UserAccount(
                     uid = user.uid,
                     email = user.email,
-                    name = user.displayName
                 )
             )
 
@@ -71,7 +69,6 @@ class FirebaseAuthImplementation (private val auth: FirebaseAuth) : IAuthReposit
                 user = UserAccount(
                     uid = user.uid,
                     email = user.email,
-                    name = user.displayName
                 )
             )
 

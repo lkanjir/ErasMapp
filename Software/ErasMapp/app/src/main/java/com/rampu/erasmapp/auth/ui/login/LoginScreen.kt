@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
@@ -26,18 +27,26 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.rampu.erasmapp.R
 import com.rampu.erasmapp.common.ui.LayoutTestPreview
@@ -52,6 +61,9 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     contentPadding: PaddingValues = PaddingValues()
 ){
+
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .padding(contentPadding)
@@ -93,7 +105,8 @@ fun LoginScreen(
             isError = state.emailError != null,
             supportingText = {
                 if(state.emailError != null) Text(text = state.emailError)
-            }
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
         Spacer(Modifier.height(10.dp))
@@ -116,7 +129,22 @@ fun LoginScreen(
             isError = state.passwordError != null,
             supportingText = {
                 if(state.passwordError != null) Text(text = state.passwordError)
-            }
+            },
+            visualTransformation = if(!passwordVisible) PasswordVisualTransformation()  else VisualTransformation.None,
+            trailingIcon = {
+                IconButton(
+                    onClick = {
+                        passwordVisible = !passwordVisible
+                    }
+                ){
+                    Icon(
+                        painter = if(passwordVisible) painterResource(R.drawable.outline_visibility_off_24)
+                        else painterResource(R.drawable.outline_visibility_24),
+                        contentDescription = stringResource(R.string.password_visibility_icon)
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
         Spacer(Modifier.height(10.dp))
@@ -146,13 +174,13 @@ fun LoginScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Don’t have an account?",
+                text = stringResource(R.string.don_t_have_an_account),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
             )
             TextButton(onClick = onNavigateToRegister) {
                 Text(
-                    text = "Sign Up",
+                    text = stringResource(R.string.sign_up),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                 )
