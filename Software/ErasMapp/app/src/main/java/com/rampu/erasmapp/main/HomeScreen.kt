@@ -30,7 +30,7 @@ fun HomeScreen(onSignOut: () -> Unit){
         Button(onClick = {
             context.startActivity(Intent(context, NavigationActivity::class.java))
         }) {
-            Text("Go to Navigation")
+            Text("Navigation")
         }
 
         Spacer(modifier = Modifier.height(20.dp))
