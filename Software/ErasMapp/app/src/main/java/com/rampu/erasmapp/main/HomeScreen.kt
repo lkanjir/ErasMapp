@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun HomeScreen(onSignOut: () -> Unit){
+fun HomeScreen(onSignOut: () -> Unit, onGoToSchedule: () -> Unit){
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -28,6 +28,9 @@ fun HomeScreen(onSignOut: () -> Unit){
             onClick = onSignOut
         ){
             Text("Sign out")
+        }
+        Button(onClick = onGoToSchedule) {
+            Text("Go to Schedule")
         }
     }
 
