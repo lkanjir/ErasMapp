@@ -1,5 +1,6 @@
 package com.rampu.erasmapp.schedule.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,12 +45,19 @@ fun ScheduleScreen(
             )
         )
     }
-    /* DIALOG INPUTS */
+    /* FAB DIALOG */
     var showDialog by remember { mutableStateOf(false)}
     var newTitle by remember { mutableStateOf("") }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newStart by remember { mutableStateOf("") }
     var newEnd by remember { mutableStateOf("") }
+
+    /* EVENT DETAILS DIALOG */
+    var selectedEvent by remember { mutableStateOf<ScheduleEvent?>(null)}
+    var editTitle by remember {mutableStateOf("")}
+    var editDateText by remember { mutableStateOf("") }
+    var editStart by remember { mutableStateOf("") }
+    var editEnd by remember { mutableStateOf("") }
 
     /* DATES */
     var currentDay by remember { mutableStateOf(LocalDate.now()) }
@@ -147,8 +155,15 @@ fun ScheduleScreen(
                                     Card(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        elevation = CardDefaults.cardElevation(2.dp)
+                                            .padding(vertical = 4.dp)
+                                            .clickable{
+                                              selectedEvent = event
+                                                editTitle = event.title
+                                                editDateText = event.date.toString()
+                                                editStart = event.startTime
+                                                editEnd = event.endTime
+                                            },
+                                            elevation = CardDefaults.cardElevation(2.dp)
                                     ) {
                                         Column(
                                             modifier = Modifier.padding(8.dp),
@@ -213,7 +228,15 @@ fun ScheduleScreen(
                     } else {
                         items(dayEvents) { event ->
                             Card(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable{
+                                        selectedEvent = event
+                                        editTitle = event.title
+                                        editDateText = event.date.toString()
+                                        editStart = event.startTime
+                                        editEnd = event.endTime
+                                    },
                                 elevation = CardDefaults.cardElevation(2.dp)
                             ) {
                                 Column(
@@ -291,6 +314,57 @@ fun ScheduleScreen(
                         },
                         label = { Text("Date (YYYY-MM-DD)") },
                         singleLine = true
+                    )
+                }
+            }
+        )
+    }
+
+    selectedEvent?.let{event ->
+        AlertDialog(
+            onDismissRequest = {selectedEvent = null},
+            confirmButton = {
+                TextButton(onClick = {
+                    runCatching {
+                        val date = LocalDate.parse(editDateText)
+                        event.title = editTitle
+                        event.date = date
+                        event.startTime = editStart
+                        event.endTime = editEnd
+                        demoEvents = demoEvents.toMutableList()
+                        selectedEvent = null
+                    }
+                }){Text("Save Changes")}
+            },
+            dismissButton = {
+                TextButton(onClick = {selectedEvent = null}) {
+                    Text("Close")
+                }
+            },
+            title = {Text("Event Details")},
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        value = editTitle,
+                        onValueChange = {editTitle = it},
+                        label = {Text("Title")}
+                    )
+                    OutlinedTextField(
+                        value = editStart,
+                        onValueChange = {editStart = it},
+                        label = {Text("Start Time")}
+                    )
+                    OutlinedTextField(
+                        value = editEnd,
+                        onValueChange = {editEnd = it},
+                        label = {Text("End Time")}
+                    )
+                    OutlinedTextField(
+                        value = editDateText,
+                        onValueChange = {editDateText = it},
+                        label = {Text("Date (YYYY-MM-DD)")}
                     )
                 }
             }
