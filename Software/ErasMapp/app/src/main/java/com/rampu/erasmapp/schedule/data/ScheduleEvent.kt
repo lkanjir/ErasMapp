@@ -6,5 +6,8 @@ data class ScheduleEvent(
     var title: String,
     var date: LocalDate,
     var startTime: String,
-    var endTime: String
+    var endTime: String,
+    var location: String,
+    var category: String,
+    var isEveryWeek: Boolean
 )

@@ -1,5 +1,6 @@
 package com.rampu.erasmapp.schedule.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -12,8 +13,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.rampu.erasmapp.schedule.data.ScheduleEvent
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -21,8 +25,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.UUID
 
-
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
     onBack: () -> Unit = {}
@@ -36,21 +39,31 @@ fun ScheduleScreen(
                     "RWA",
                     LocalDate.now().with(DayOfWeek.MONDAY),
                     "10:00",
-                    "12:00"
+                    "12:00",
+                    location = "Room 3, FOI1",
+                    category = "Lecture",
+                    isEveryWeek = true
                 ),
-                ScheduleEvent("2", "RAMPU", LocalDate.now().with(DayOfWeek.MONDAY), "12:00", "15:00"),
-                ScheduleEvent("3", "RPP", LocalDate.now().with(DayOfWeek.TUESDAY), "8:00", "10:00"),
-                ScheduleEvent("4", "POP", LocalDate.now().with(DayOfWeek.WEDNESDAY), "12:00", "14:00"),
-                ScheduleEvent("5", "RPP", LocalDate.now().with(DayOfWeek.THURSDAY), "17:00", "18:30"),
+                ScheduleEvent("2", "RAMPU", LocalDate.now().with(DayOfWeek.MONDAY), "12:00", "15:00", location = "Room 3, FOI1", category = "Lecture", isEveryWeek = true),
+                ScheduleEvent("3", "RPP", LocalDate.now().with(DayOfWeek.TUESDAY), "8:00", "10:00", location = "Room 3, FOI2", category = "Lecture", isEveryWeek = true),
+                ScheduleEvent("4", "RAMPU", LocalDate.now().with(DayOfWeek.TUESDAY), "12:00", "18:00", location = "-", category = "Other", isEveryWeek = false),
+                ScheduleEvent("5", "POP", LocalDate.now().with(DayOfWeek.WEDNESDAY), "12:00", "14:00", location = "Room 7, FOI1", category = "Lecture", isEveryWeek = true),
+                ScheduleEvent("6", "POP", LocalDate.now().with(DayOfWeek.WEDNESDAY), "12:00", "14:00", location = "Room 7, FOI1", category = "Mid-Term", isEveryWeek = false),
+                ScheduleEvent("7", "RPP", LocalDate.now().with(DayOfWeek.THURSDAY), "17:00", "18:30", location = "Room 4, FOI1", category = "Exercises", isEveryWeek = true),
             )
         )
     }
+    val categories = listOf("Lecture", "Exercises", "Mid-Term", "Final-Exam", "Seminary", "Other")
+
     /* FAB DIALOG */
     var showDialog by remember { mutableStateOf(false)}
     var newTitle by remember { mutableStateOf("") }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newStart by remember { mutableStateOf("") }
     var newEnd by remember { mutableStateOf("") }
+    var newLocation by remember { mutableStateOf("") }
+    var newCategory by remember { mutableStateOf("") }
+    var newIsEveryWeek by remember { mutableStateOf(false) }
 
     /* EVENT DETAILS DIALOG */
     var selectedEvent by remember { mutableStateOf<ScheduleEvent?>(null)}
@@ -58,6 +71,9 @@ fun ScheduleScreen(
     var editDateText by remember { mutableStateOf("") }
     var editStart by remember { mutableStateOf("") }
     var editEnd by remember { mutableStateOf("") }
+    var editLocation by remember { mutableStateOf("") }
+    var editCategory by remember { mutableStateOf("") }
+    var editIsEveryWeek by remember { mutableStateOf(false) }
 
     /* DATES */
     var currentDay by remember { mutableStateOf(LocalDate.now()) }
@@ -68,11 +84,24 @@ fun ScheduleScreen(
     val weekFormatterNoYear = remember { DateTimeFormatter.ofPattern("d.MM", Locale.getDefault()) }
     val weekFormatterWithYear = remember { DateTimeFormatter.ofPattern("d.MM.yyyy", Locale.getDefault()) }
 
+
     val weekEnd = currentWeekStart.plusDays(6)
     val weekLabel = if (currentWeekStart.year == weekEnd.year) {
         "${currentWeekStart.format(weekFormatterNoYear)}–${weekEnd.format(weekFormatterWithYear)}"
     } else {
         "${currentWeekStart.format(weekFormatterWithYear)}–${weekEnd.format(weekFormatterWithYear)}"
+    }
+
+    fun getCategoryColor(category: String): Color {
+        return when (category.lowercase()) {
+            "lecture" -> Color(0xFFE63946)
+            "exercises" -> Color(0xFF2A9D8F)
+            "mid-term" -> Color(0xFF1D3557)
+            "final-exam" -> Color(0xFF457B9D)
+            "seminary" -> Color(0xFFF4A261)
+            "other" -> Color(0xFFBDBDBD)
+            else -> Color(0xFFBDBDBD)
+        }
     }
 
     Scaffold(
@@ -92,14 +121,26 @@ fun ScheduleScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(onClick = { isWeeklyView = !isWeeklyView }) {
-                Text(if (isWeeklyView) "Switch to Daily View" else "Switch to Weekly View")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ){
+                Text("Schedule",
+                    fontSize = 42.sp,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.W600)
+                Button(onClick = { isWeeklyView = !isWeeklyView }) {
+                    Text(if (isWeeklyView) "Weekly View" else "Daily View")
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             if (isWeeklyView) {
-                // WEEEKS VIEW
+                // WEEKS VIEW
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -147,11 +188,14 @@ fun ScheduleScreen(
                                 style = MaterialTheme.typography.titleMedium
                             )
                             Divider(Modifier.padding(vertical = 4.dp))
-                            val dayEvents = demoEvents.filter { it.date == day }
+
+                            val dayEvents = demoEvents.filter { event -> event.date == day || (event.isEveryWeek && event.date.dayOfWeek == day.dayOfWeek) }
+
                             if (dayEvents.isEmpty()) {
                                 Text("No events", style = MaterialTheme.typography.bodySmall)
                             } else {
                                 dayEvents.forEach { event ->
+                                    val categoryColor = getCategoryColor(event.category)
                                     Card(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -162,20 +206,42 @@ fun ScheduleScreen(
                                                 editDateText = event.date.toString()
                                                 editStart = event.startTime
                                                 editEnd = event.endTime
+                                                editLocation = event.location
+                                                editCategory = event.category
+                                                editIsEveryWeek = event.isEveryWeek
                                             },
                                             elevation = CardDefaults.cardElevation(2.dp)
                                     ) {
-                                        Column(
-                                            modifier = Modifier.padding(8.dp),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(IntrinsicSize.Min) // FOR CATEGORYCOLOR
                                         ) {
-                                            Text(event.title,
-                                                modifier = Modifier.fillMaxWidth(),
-                                                textAlign = TextAlign.Center)
-                                            Text("${event.startTime}–${event.endTime}",
-                                                modifier = Modifier.fillMaxWidth(),
-                                                textAlign = TextAlign.Center)
+                                            Box(
+                                                modifier = Modifier
+                                                    .width(6.dp)
+                                                    .fillMaxHeight()
+                                                    .background(categoryColor)
+                                            )
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(8.dp),
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.Center
+                                            ) {
+                                                Text(
+                                                    event.title,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    textAlign = TextAlign.Center
+                                                )
+                                                Text(
+                                                    "${event.startTime}–${event.endTime}",
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    textAlign = TextAlign.Center
+                                                )
+                                            }
+
                                         }
                                     }
                                 }
@@ -215,7 +281,7 @@ fun ScheduleScreen(
                     }
 
                 }
-                val dayEvents = demoEvents.filter { it.date == currentDay }
+                val dayEvents = demoEvents.filter { event -> event.date == currentDay || (event.isEveryWeek && event.date.dayOfWeek == currentDay.dayOfWeek) }
 
                 Divider(Modifier.padding(vertical = 16.dp))
 
@@ -227,6 +293,7 @@ fun ScheduleScreen(
                         item { Text("No events today.") }
                     } else {
                         items(dayEvents) { event ->
+                            val categoryColor = getCategoryColor(event.category)
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -236,14 +303,56 @@ fun ScheduleScreen(
                                         editDateText = event.date.toString()
                                         editStart = event.startTime
                                         editEnd = event.endTime
+                                        editLocation = event.location
+                                        editCategory = event.category
+                                        editIsEveryWeek = event.isEveryWeek
                                     },
                                 elevation = CardDefaults.cardElevation(2.dp)
                             ) {
-                                Column(
-                                    modifier = Modifier.padding(12.dp)
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(IntrinsicSize.Min)
                                 ) {
-                                    Text(event.title)
-                                    Text("${event.startTime}–${event.endTime}")
+                                    Box(
+                                        modifier = Modifier
+                                            .width(6.dp)
+                                            .fillMaxHeight()
+                                            .background(categoryColor)
+                                    )
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(8.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Text(
+                                            event.title,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            textAlign = TextAlign.Start
+                                        )
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(top = 4.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "${event.startTime}–${event.endTime}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                textAlign = TextAlign.Start,
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            Text(
+                                                text = event.location,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                textAlign = TextAlign.End,
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -265,7 +374,10 @@ fun ScheduleScreen(
                                     title = newTitle,
                                     date = newDate,
                                     startTime = newStart,
-                                    endTime = newEnd
+                                    endTime = newEnd,
+                                    location = newLocation.ifBlank { "-" },
+                                    category = newCategory.ifBlank { "Other" },
+                                    isEveryWeek = newIsEveryWeek
                                 )
                             )
                         }
@@ -273,6 +385,9 @@ fun ScheduleScreen(
                         newStart = ""
                         newEnd = ""
                         newDate = LocalDate.now()
+                        newLocation = ""
+                        newCategory = ""
+                        newIsEveryWeek = false
                         showDialog = false
                     }
                 }) { Text("Save") }
@@ -315,6 +430,67 @@ fun ScheduleScreen(
                         label = { Text("Date (YYYY-MM-DD)") },
                         singleLine = true
                     )
+                    OutlinedTextField(value = newLocation, onValueChange = { newLocation = it }, label = { Text("Location") })
+                    //DROPDOWN
+                    var expandedCategory by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = expandedCategory,
+                        onExpandedChange = { expandedCategory = !expandedCategory }
+                    ) {
+                        OutlinedTextField(
+                            value = if (newCategory.isBlank()) "Other" else newCategory,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Category") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCategory)
+                            },
+                            modifier = Modifier.menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedCategory,
+                            onDismissRequest = { expandedCategory = false }
+                        ) {
+                            categories.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option) },
+                                    onClick = {
+                                        newCategory = option
+                                        expandedCategory = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    var expandedEveryWeek by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = expandedEveryWeek,
+                        onExpandedChange = { expandedEveryWeek = !expandedEveryWeek }
+                    ) {
+                        OutlinedTextField(
+                            value = if (newIsEveryWeek) "Yes" else "No",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Repeat Weekly") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEveryWeek)
+                            },
+                            modifier = Modifier.menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedEveryWeek,
+                            onDismissRequest = { expandedEveryWeek = false }
+                        ) {
+                            DropdownMenuItem(text = { Text("Yes") }, onClick = {
+                                newIsEveryWeek = true
+                                expandedEveryWeek = false
+                            })
+                            DropdownMenuItem(text = { Text("No") }, onClick = {
+                                newIsEveryWeek = false
+                                expandedEveryWeek = false
+                            })
+                        }
+                    }
                 }
             }
         )
@@ -331,6 +507,9 @@ fun ScheduleScreen(
                         event.date = date
                         event.startTime = editStart
                         event.endTime = editEnd
+                        event.location = editLocation
+                        event.category = editCategory
+                        event.isEveryWeek = editIsEveryWeek
                         demoEvents = demoEvents.toMutableList()
                         selectedEvent = null
                     }
@@ -361,11 +540,66 @@ fun ScheduleScreen(
                         onValueChange = {editEnd = it},
                         label = {Text("End Time")}
                     )
-                    OutlinedTextField(
-                        value = editDateText,
-                        onValueChange = {editDateText = it},
-                        label = {Text("Date (YYYY-MM-DD)")}
-                    )
+                    //DROPDOWN
+                    var expandedEditCategory by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = expandedEditCategory,
+                        onExpandedChange = { expandedEditCategory = !expandedEditCategory }
+                    ) {
+                        OutlinedTextField(
+                            value = if (editCategory.isBlank()) "Other" else editCategory,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Category") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEditCategory)
+                            },
+                            modifier = Modifier.menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedEditCategory,
+                            onDismissRequest = { expandedEditCategory = false }
+                        ) {
+                            categories.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option) },
+                                    onClick = {
+                                        editCategory = option
+                                        expandedEditCategory = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    var expandedEditEveryWeek by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = expandedEditEveryWeek,
+                        onExpandedChange = { expandedEditEveryWeek = !expandedEditEveryWeek }
+                    ) {
+                        OutlinedTextField(
+                            value = if (editIsEveryWeek) "Yes" else "No",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Repeat Weekly") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEditEveryWeek)
+                            },
+                            modifier = Modifier.menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedEditEveryWeek,
+                            onDismissRequest = { expandedEditEveryWeek = false }
+                        ) {
+                            DropdownMenuItem(text = { Text("Yes") }, onClick = {
+                                editIsEveryWeek = true
+                                expandedEditEveryWeek = false
+                            })
+                            DropdownMenuItem(text = { Text("No") }, onClick = {
+                                editIsEveryWeek = false
+                                expandedEditEveryWeek = false
+                            })
+                        }
+                    }
                 }
             }
         )
