@@ -2,6 +2,7 @@ package com.rampu.erasmapp.main
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Location
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
@@ -11,11 +12,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +42,8 @@ import com.rampu.erasmapp.common.ui.components.Logo
 import com.rampu.erasmapp.common.ui.components.UserPositionMarker
 import kotlinx.coroutines.launch
 
+data class PointOfInterestWithDistance(val poi: PointOfInterest, val distance: Float)
+
 @Composable
 fun MapScreen() {
     val context = LocalContext.current
@@ -48,6 +55,32 @@ fun MapScreen() {
     val cameraPositionState = rememberCameraPositionState {
         val target = LatLng(46.30778948861526, 16.338096828836036)
         position = CameraPosition.fromLatLngZoom(target, 10f)
+    }
+
+    val pointsOfInterest = remember {
+        listOf(
+            PointOfInterest("Eiffel Tower", LatLng(48.8584, 2.2945)),
+            PointOfInterest("Louvre Museum", LatLng(48.8606, 2.3376)),
+            PointOfInterest("Cathédrale Notre-Dame de Paris", LatLng(48.8529, 2.3500))
+        )
+    }
+
+    val nearbyPoints by remember(userLocation) {
+        derivedStateOf {
+            userLocation?.let { loc ->
+                val user = Location("").apply {
+                    latitude = loc.latitude
+                    longitude = loc.longitude
+                }
+                pointsOfInterest.map {
+                    val point = Location("").apply {
+                        latitude = it.location.latitude
+                        longitude = it.location.longitude
+                    }
+                    PointOfInterestWithDistance(it, user.distanceTo(point))
+                }.sortedBy { it.distance }
+            } ?: emptyList()
+        }
     }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
@@ -70,6 +103,14 @@ fun MapScreen() {
             }
         }
     )
+
+    LaunchedEffect(Unit) {
+        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                location?.let { userLocation = LatLng(it.latitude, it.longitude) }
+            }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -121,7 +162,7 @@ fun MapScreen() {
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(end = 55.dp, bottom = 10.dp)
+                    .padding(end = 32.dp, bottom = 32.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_my_location),
@@ -135,7 +176,6 @@ fun MapScreen() {
                     .weight(1f)
                     .fillMaxSize()
                     .border(4.dp, MaterialTheme.colorScheme.primary),
-                contentAlignment = Alignment.Center
             ) {
                 Logo(
                     modifier = Modifier
@@ -143,7 +183,19 @@ fun MapScreen() {
                         .padding(8.dp)
                         .size(48.dp)
                 )
-                Text("Close points of interests")
+                LazyColumn(modifier = Modifier.padding(top = 64.dp)) {
+                    item { Text("Close points of interest", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(8.dp)) }
+                    if (userLocation == null) {
+                        item { Text("Getting location...", modifier = Modifier.padding(16.dp)) }
+                    } else {
+                        items(nearbyPoints) { (poi, distance) ->
+                            Column(modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp)) {
+                                Text(poi.name)
+                                Text("Distance: %.2f km".format(distance / 1000), style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                    }
+                }
             }
             Box(
                 modifier = Modifier
