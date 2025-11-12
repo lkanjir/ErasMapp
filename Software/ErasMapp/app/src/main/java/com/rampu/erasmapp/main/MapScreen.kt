@@ -4,11 +4,17 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,10 +31,10 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberUpdatedMarkerState
 import com.rampu.erasmapp.R
+import com.rampu.erasmapp.common.ui.components.Logo
+import com.rampu.erasmapp.common.ui.components.UserPositionMarker
 import kotlinx.coroutines.launch
 
 @Composable
@@ -65,53 +71,95 @@ fun MapScreen() {
         }
     )
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .border(4.dp, MaterialTheme.colorScheme.primary)
         ) {
-            userLocation?.let {
-                Marker(
-                    state = rememberUpdatedMarkerState(position = it),
-                    title = "Your Location"
-                )
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState
+            ) {
+                userLocation?.let {
+                    UserPositionMarker(position = it)
+                }
             }
-        }
 
-        FloatingActionButton(
-            onClick = {
-                when (PackageManager.PERMISSION_GRANTED) {
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) -> {
-                        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                            location?.let {
-                                val userLatLng = LatLng(it.latitude, it.longitude)
-                                userLocation = userLatLng
-                                coroutineScope.launch {
-                                    cameraPositionState.animate(
-                                        com.google.android.gms.maps.CameraUpdateFactory.newCameraPosition(
-                                            CameraPosition.fromLatLngZoom(userLatLng, 15f)
+            Logo(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(8.dp)
+                    .size(48.dp)
+            )
+
+            FloatingActionButton(
+                onClick = {
+                    when (PackageManager.PERMISSION_GRANTED) {
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) -> {
+                            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                                location?.let {
+                                    val userLatLng = LatLng(it.latitude, it.longitude)
+                                    userLocation = userLatLng
+                                    coroutineScope.launch {
+                                        cameraPositionState.animate(
+                                            com.google.android.gms.maps.CameraUpdateFactory.newCameraPosition(
+                                                CameraPosition.fromLatLngZoom(userLatLng, 15f)
+                                            )
                                         )
-                                    )
+                                    }
                                 }
                             }
                         }
+                        else -> {
+                            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                        }
                     }
-                    else -> {
-                        locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                    }
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_my_location),
-                contentDescription = "Current Location"
-            )
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 55.dp, bottom = 10.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_my_location),
+                    contentDescription = "Current Location"
+                )
+            }
+        }
+        Row(modifier = Modifier.weight(1f)) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize()
+                    .border(4.dp, MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Logo(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                        .size(48.dp)
+                )
+                Text("Close points of interests")
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize()
+                    .border(4.dp, MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Logo(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                        .size(48.dp)
+                )
+                Text("Recommended locations")
+            }
         }
     }
 }
