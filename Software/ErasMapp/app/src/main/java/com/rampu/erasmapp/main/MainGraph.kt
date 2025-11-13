@@ -8,11 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rampu.erasmapp.schedule.ui.ScheduleScreen
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
 
 @Composable
 fun MainGraph(
     onSignOut: () -> Unit
+
 ){
     val navController = rememberNavController()
 
@@ -26,7 +28,13 @@ fun MainGraph(
                 modifier = Modifier.fillMaxSize().padding(innerPadding)
             ){
                 composable<HomeRoute> {
-                    HomeScreen(onSignOut = onSignOut)
+                    HomeScreen(
+                        onSignOut = onSignOut,
+                        onGoToSchedule = { navController.navigate(ScheduleRoute) }
+                    )
+                }
+                composable<ScheduleRoute> {
+                    ScheduleScreen(onBack = { navController.popBackStack() })
                 }
             }
         }
