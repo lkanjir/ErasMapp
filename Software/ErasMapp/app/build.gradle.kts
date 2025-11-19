@@ -128,11 +128,7 @@ dependencies {
 
 // Google maps Compose
     implementation(libs.maps.compose)
-}
-
-
 
     // Kalendar
     implementation("com.kizitonwose.calendar:compose:2.9.0")
-
 }
