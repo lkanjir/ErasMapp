@@ -9,6 +9,12 @@ plugins {
     kotlin("plugin.serialization")
 }
 
+val localPropertiesFile = rootProject.file("local.properties")
+val localProperties = Properties()
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
 android {
 
     namespace = "com.rampu.erasmapp"
@@ -41,6 +47,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = localProperties.getProperty("GOOGLE_MAPS_API_KEY") ?: ""
     }
 
     buildTypes {
@@ -78,6 +85,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -85,6 +93,7 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
 
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
     implementation("com.google.firebase:firebase-auth")
@@ -110,6 +119,17 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-compose:${koin_version}")
 
     implementation("androidx.compose.ui:ui-text-google-fonts:1.9.3")
+    implementation (libs.compose.material.icons)
+
+
+            // Google Maps SDK for Android
+    implementation(libs.places)
+    implementation(libs.play.services.maps)
+
+// Google maps Compose
+    implementation(libs.maps.compose)
+}
+
 
 
     // Kalendar
