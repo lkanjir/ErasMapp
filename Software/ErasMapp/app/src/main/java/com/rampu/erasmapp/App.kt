@@ -2,6 +2,7 @@ package com.rampu.erasmapp
 
 import android.app.Application
 import com.rampu.erasmapp.auth.authModule
+import com.rampu.erasmapp.eventCalendar.eventCalendarModule
 import com.rampu.erasmapp.schedule.scheduleModule
 import com.rampu.erasmapp.session.sessionModule
 import org.koin.android.ext.koin.androidContext
@@ -16,7 +17,8 @@ class App : Application(){
             modules(
                 authModule,
                 sessionModule,
-                scheduleModule
+                scheduleModule,
+                eventCalendarModule
             )
         }
 
