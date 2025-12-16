@@ -9,5 +9,5 @@ import org.koin.dsl.module
 val eventCalendarModule = module {
     single<EventCalendarRepository> { FirestoreEventCalendarRepository(get(), get()) }
 
-    viewModel { EventCalendarViewModel() }
+    viewModel { EventCalendarViewModel(get()) }
 }

@@ -1,79 +1,85 @@
 package com.rampu.erasmapp.eventCalendar.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rampu.erasmapp.eventCalendar.data.EventCalendarRepository
+import com.rampu.erasmapp.eventCalendar.data.EventCalendarSyncState
 import com.rampu.erasmapp.eventCalendar.domain.CalendarEvent
 import java.time.LocalDate
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 data class EventCalendarUiState(
     val events: List<CalendarEvent> = emptyList(),
-    val selectedDate: LocalDate? = null
+    val selectedDate: LocalDate? = null,
+    val isLoading: Boolean = true,
+    val errorMessage: String? = null,
+    val isSignedOut: Boolean = false
 )
 
-class EventCalendarViewModel : ViewModel() {
+class EventCalendarViewModel(
+    private val repository: EventCalendarRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(EventCalendarUiState())
     val uiState = _uiState.asStateFlow()
+    private var observeJob: Job? = null
 
     init {
-        seedEvents()
+        observeEvents()
     }
 
     fun onDateSelected(date: LocalDate) {
         _uiState.update { it.copy(selectedDate = date) }
     }
 
-    private fun seedEvents() {
-        val today = LocalDate.now()
-        val presetEvents = listOf(
-            CalendarEvent(
-                id= 1,
-                date = today,
-                title = "Campus Tour",
-                time = "10:00 - 12:00",
-                location = "FOI1",
-                description = "Guided walk through faculty buildings and student services."
-            ),
-            CalendarEvent(
-                id= 2,
-                date = today.plusDays(2),
-                title = "Erasmus Meetup",
-                time = "18:00 - 20:00",
-                location = "Student Center",
-                description = "Casual networking for exchange students with snacks and music."
-            ),
-            CalendarEvent(
-                id= 3,
-                date = today.plusWeeks(1),
-                title = "Project Prep2",
-                time = "14:00 - 16:30",
-                location = "FOI2",
-                description = "Hands-on session to kick off team projects and set milestones."
-            ),
-            CalendarEvent(
-                id= 4,
-                date = today.plusWeeks(1),
-                title = "City Walk Through",
-                time = "17:00 - 19:00",
-                location = "Student Center",
-                description = "Learning the city of Varaždin."
-            ),
-            CalendarEvent(
-                id= 5,
-                date = today.minusDays(1),
-                title = "Project Prep1",
-                time = "09:00 - 11:00",
-                location = "FOI1",
-                description = "Hands-on session to kick off team projects and set milestones"
-            )
-        )
+    fun refreshEvents() {
+        observeEvents()
+    }
 
-        _uiState.update {
-            it.copy(
-                events = presetEvents,
-                selectedDate = presetEvents.firstOrNull()?.date
-            )
+    private fun observeEvents() {
+        observeJob?.cancel()
+        observeJob = viewModelScope.launch {
+            repository.observeEvents().collect { syncState ->
+                when (syncState) {
+                    EventCalendarSyncState.Loading -> _uiState.update {
+                        it.copy(isLoading = true, errorMessage = null)
+                    }
+
+                    is EventCalendarSyncState.Success -> _uiState.update { state ->
+                        val newSelectedDate = state.selectedDate
+                            ?.takeIf { selected -> syncState.events.any { it.date == selected } }
+
+                        state.copy(
+                            events = syncState.events,
+                            selectedDate = newSelectedDate,
+                            isLoading = false,
+                            errorMessage = null,
+                            isSignedOut = false
+                        )
+                    }
+
+                    is EventCalendarSyncState.Error -> _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = syncState.message,
+                            isSignedOut = false
+                        )
+                    }
+
+                    EventCalendarSyncState.SignedOut -> _uiState.update {
+                        it.copy(
+                            events = emptyList(),
+                            selectedDate = null,
+                            isLoading = false,
+                            errorMessage = "Sign in to view events.",
+                            isSignedOut = true
+                        )
+                    }
+                }
+            }
         }
     }
 }

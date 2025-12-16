@@ -72,15 +72,14 @@ private fun DocumentSnapshot.toCalendarEvent(formatter: DateTimeFormatter): Cale
 
     val numericId: Number = getLong("id")
         ?: getDouble("id")?.toLong()
-        ?: id.toLongOrNull()
-        ?: return null
+        ?: id.hashCode().toLong()
 
     return CalendarEvent(
         id = numericId,
         date = parsedDate,
         title = title,
-        time = getString("startTime") ?: "-",
+        time = getString("time") ?: "-",
         location = getString("location") ?: "-",
-        description = getString("category") ?: "Other"
+        description = getString("description") ?: "-"
     )
 }
