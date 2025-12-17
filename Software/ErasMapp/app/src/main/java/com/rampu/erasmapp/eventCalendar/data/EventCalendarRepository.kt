@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface EventCalendarRepository {
     fun observeEvents(): Flow<EventCalendarSyncState>
+    fun observeAdminStatus(): Flow<Boolean>
     suspend fun createEvent(event: CalendarEvent): Result<Unit>
 }
 

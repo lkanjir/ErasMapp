@@ -21,6 +21,7 @@ data class EventCalendarUiState(
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
     val isSignedOut: Boolean = false,
+    val isAdmin: Boolean = false,
     val newTitle: String = "",
     val newDateText: String = LocalDate.now().toString(),
     val newTime: String = "",
@@ -35,9 +36,11 @@ class EventCalendarViewModel(
     private val _uiState = MutableStateFlow(EventCalendarUiState())
     val uiState = _uiState.asStateFlow()
     private var observeJob: Job? = null
+    private var adminObserveJob: Job? = null
 
     init {
         observeEvents()
+        observeAdminStatus()
     }
 
     fun onDateSelected(date: LocalDate) {
@@ -87,6 +90,24 @@ class EventCalendarViewModel(
                             isSignedOut = true
                         )
                     }
+                }
+            }
+        }
+    }
+
+    private fun observeAdminStatus() {
+        adminObserveJob?.cancel()
+        adminObserveJob = viewModelScope.launch {
+            repository.observeAdminStatus().collect { isAdmin ->
+                _uiState.update { state ->
+                    state.copy(
+                        isAdmin = isAdmin,
+                        showAddCalendarEventDialog = if (isAdmin) {
+                            state.showAddCalendarEventDialog
+                        } else {
+                            false
+                        }
+                    )
                 }
             }
         }

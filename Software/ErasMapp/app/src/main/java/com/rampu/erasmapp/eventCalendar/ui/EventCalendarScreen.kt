@@ -56,6 +56,7 @@ import com.rampu.erasmapp.eventCalendar.domain.CalendarEvent
 import org.koin.androidx.compose.koinViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
@@ -70,8 +71,8 @@ fun EventCalendarScreen(
     val selectedDate = uiState.selectedDate
 
 
-    val startMonth = YearMonth.now().minusMonths(3)
-    val endMonth = YearMonth.now().plusMonths(3)
+    val startMonth = YearMonth.now().minusMonths(1)
+    val endMonth = YearMonth.now().plusMonths(4)
     val currentMonth = remember { YearMonth.now() }
     val daysOfWeek = daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY)
     val dateFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
@@ -85,15 +86,17 @@ fun EventCalendarScreen(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    if (!uiState.isSignedOut && !uiState.isSaving) {
-                        viewModel.setAddDialogVisible(true)
-                    }
-                },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Event")
+            if (uiState.isAdmin) {
+                FloatingActionButton(
+                    onClick = {
+                        if (!uiState.isSignedOut && !uiState.isSaving) {
+                            viewModel.setAddDialogVisible(true)
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Event")
+                }
             }
         },
         floatingActionButtonPosition = FabPosition.End
@@ -135,7 +138,9 @@ fun EventCalendarScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                val todaysEvents = events.filter { it.date == date }
+                val todaysEvents = events
+                    .filter { it.date == date }
+                    .sortedWith(compareBy { parseEventTime(it.time) ?: LocalTime.MAX })
                 if (todaysEvents.isEmpty()) {
                     item { Text("No events", style = MaterialTheme.typography.bodyMedium) }
                 } else {
@@ -245,8 +250,6 @@ fun EventCalendarScreen(
     }
 }
 
-
-
 @Composable
 fun MonthCalendar(
     events: List<CalendarEvent>,
@@ -334,4 +337,28 @@ fun MonthCalendar(
             }
         }
     )
+}
+
+private fun parseEventTime(timeText: String): LocalTime? {
+    val trimmed = timeText.trim()
+    if (trimmed.isEmpty() || trimmed == "-") {
+        return null
+    }
+
+    val startTimeText = trimmed.split("-").firstOrNull()?.trim().orEmpty()
+    if (startTimeText.isEmpty()) {
+        return null
+    }
+
+    val formats = listOf("H:mm", "HH:mm")
+    for (pattern in formats) {
+        val parsed = runCatching {
+            LocalTime.parse(startTimeText, DateTimeFormatter.ofPattern(pattern))
+        }.getOrNull()
+        if (parsed != null) {
+            return parsed
+        }
+    }
+
+    return null
 }

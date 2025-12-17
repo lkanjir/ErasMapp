@@ -1,5 +1,6 @@
 ﻿package com.rampu.erasmapp.eventCalendar.data
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -62,6 +63,37 @@ class FirestoreEventCalendarRepository(
         }
     }
 
+    override fun observeAdminStatus(): Flow<Boolean> = callbackFlow {
+        var registration: ListenerRegistration? = null
+        val authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            registration?.remove()
+
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser == null) {
+                trySend(false)
+                return@AuthStateListener
+            }
+
+            registration = firestore.userProfileFS(currentUser.uid)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        trySend(false)
+                        return@addSnapshotListener
+                    }
+
+                    val isAdmin = snapshot?.getString("role") == "admin"
+                    trySend(isAdmin)
+                }
+        }
+
+        auth.addAuthStateListener(authListener)
+
+        awaitClose {
+            registration?.remove()
+            auth.removeAuthStateListener(authListener)
+        }
+    }
+
     override suspend fun createEvent(event: CalendarEvent): Result<Unit> = runCatching {
         auth.currentUser ?: throw IllegalStateException("Missing user session.")
         val finalEvent = if (event.id.isBlank()) {
@@ -78,6 +110,9 @@ class FirestoreEventCalendarRepository(
 
 private fun FirebaseFirestore.calendarEventsFS() =
     collection("calendarEvents")
+
+private fun FirebaseFirestore.userProfileFS(userId: String) =
+    collection("users").document(userId)
 
 private fun DocumentSnapshot.toCalendarEvent(formatter: DateTimeFormatter): CalendarEvent? {
     val dateText = getString("date") ?: return null
