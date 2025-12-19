@@ -7,3 +7,5 @@ import kotlinx.serialization.Serializable
 @Serializable object EventCalendarRoute
 @Serializable object AdminRoute
 @Serializable object AdminEventsRoute
+@Serializable object AdminRoomsRoute
+@Serializable object AdminNewsRoute

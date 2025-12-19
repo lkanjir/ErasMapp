@@ -21,7 +21,9 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun AdminConsoleScreen(
-    onManageEvents: () -> Unit
+    onManageEvents: () -> Unit,
+    onManageRooms: () -> Unit,
+    onManageNews: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -46,16 +48,16 @@ fun AdminConsoleScreen(
         AdminSectionCard(
             title = "Rooms",
             description = "Manage room listings and availability.",
-            actionLabel = "TO DO",
-            onAction = {},
-            actionEnabled = false
+            actionLabel = "Manage",
+            onAction = onManageRooms,
+            actionEnabled = true
         )
         AdminSectionCard(
             title = "News content",
             description = "Publish and edit news updates.",
-            actionLabel = "TO DO",
-            onAction = {},
-            actionEnabled = false
+            actionLabel = "Manage",
+            onAction = onManageNews,
+            actionEnabled = true
         )
     }
 }
