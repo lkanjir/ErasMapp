@@ -2,10 +2,11 @@ package com.rampu.erasmapp.main
 
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,41 +33,51 @@ fun HomeScreen(
     val isAdmin by adminFlow.collectAsState(initial = false)
     val context = LocalContext.current
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+            .padding(bottom=20.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        Text("Home screen")
+        item { Text("Home screen") }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        item { Spacer(modifier = Modifier.height(20.dp)) }
 
-        
-        Button(onClick = {
-            context.startActivity(Intent(context, NavigationActivity::class.java))
-        }) {
-            Text("Navigation")
+        item {
+            Button(onClick = {
+                context.startActivity(Intent(context, NavigationActivity::class.java))
+            }) {
+                Text("Navigation")
+            }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = onSignOut
-        ){
-            Text("Sign out")
+        item { Spacer(modifier = Modifier.height(20.dp)) }
+        item {
+            Button(
+                onClick = onSignOut
+            ){
+                Text("Sign out")
+            }
         }
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(onClick = onGoToSchedule) {
-            Text("Go to Schedule")
+        item { Spacer(modifier = Modifier.height(20.dp)) }
+        item {
+            Button(onClick = onGoToSchedule) {
+                Text("Go to Schedule")
+            }
         }
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(onClick = onGoToEventCalendar) {
-            Text("Go to Event Calendar")
+        item { Spacer(modifier = Modifier.height(20.dp)) }
+        item {
+            Button(onClick = onGoToEventCalendar) {
+                Text("Go to Event Calendar")
+            }
         }
 
         if (isAdmin) {
-            Spacer(modifier = Modifier.height(20.dp))
-            Button(onClick = onGoToAdmin) {
-                Text("Admin console")
+            item { Spacer(modifier = Modifier.height(20.dp)) }
+            item {
+                Button(onClick = onGoToAdmin) {
+                    Text("Admin console")
+                }
             }
         }
     }
