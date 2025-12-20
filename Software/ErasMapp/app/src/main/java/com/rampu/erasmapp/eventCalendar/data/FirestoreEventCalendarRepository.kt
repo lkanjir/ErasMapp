@@ -113,6 +113,14 @@ class FirestoreEventCalendarRepository(
             .delete()
             .await()
     }
+
+    override suspend fun updateEvent(event: CalendarEvent): Result<Unit> = runCatching {
+        require(event.id.isNotBlank()) { "Event id is missing." }
+        firestore.calendarEventsFS()
+            .document(event.id)
+            .set(event.toFirestoreMap(dateFormatter))
+            .await()
+    }
 }
 
 private fun FirebaseFirestore.calendarEventsFS() =

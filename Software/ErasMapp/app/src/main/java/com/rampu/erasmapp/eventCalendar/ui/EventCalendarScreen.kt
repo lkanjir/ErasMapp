@@ -171,17 +171,7 @@ fun EventCalendarScreen(
                                 if(uiState.isAdmin){
                                     TextButton(
                                         onClick = { deleteEventDialog = event },
-                                        enabled = !uiState.isSaving,
-                                        modifier = Modifier
-                                            .border(
-                                                width = 1.dp,
-                                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                                                shape = RoundedCornerShape(6.dp)
-                                            )
-                                            .background(
-                                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
-                                                shape = RoundedCornerShape(6.dp)
-                                            )
+                                        enabled = !uiState.isSaving
                                     ) {
                                         Text(
                                             "Delete",

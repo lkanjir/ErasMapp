@@ -8,3 +8,6 @@ import kotlinx.serialization.Serializable
 @Serializable object MapRoute
 @Serializable object ProfileRoute
 @Serializable object AdminRoute
+@Serializable object AdminEventsRoute
+@Serializable object AdminRoomsRoute
+@Serializable object AdminNewsRoute

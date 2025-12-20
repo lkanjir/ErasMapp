@@ -30,6 +30,12 @@ data class EventCalendarUiState(
     val newDescription: String = "",
     val transientMessage: String? = null,
     val selectedEvent: CalendarEvent? = null,
+    val editTitle: String = "",
+    val editDateText: String = "",
+    val editTime: String = "",
+    val editLocation: String = "",
+    val editDescription: String = "",
+    val showEditCalendarEventDialog: Boolean = false,
 )
 
 class EventCalendarViewModel(
@@ -185,6 +191,88 @@ class EventCalendarViewModel(
                         isSaving = false,
                         transientMessage = result.exceptionOrNull()?.localizedMessage
                             ?: "Unable to delete event. Try again."
+                    )
+                }
+            }
+        }
+    }
+
+    fun updateEditTitle(value: String) = _uiState.update { it.copy(editTitle = value) }
+    fun updateEditDateText(value: String) = _uiState.update { it.copy(editDateText = value) }
+    fun updateEditTime(value: String) = _uiState.update { it.copy(editTime = value) }
+    fun updateEditLocation(value: String) = _uiState.update { it.copy(editLocation = value) }
+    fun updateEditDescription(value: String) = _uiState.update { it.copy(editDescription = value) }
+
+    fun selectEvent(event: CalendarEvent) {
+        _uiState.update {
+            it.copy(
+                selectedEvent = event,
+                editTitle = event.title,
+                editDateText = event.date.toString(),
+                editTime = event.time,
+                editLocation = event.location,
+                editDescription = event.description,
+                showEditCalendarEventDialog = true
+            )
+        }
+    }
+
+    fun dismissEditDialog() {
+        _uiState.update {
+            it.copy(
+                selectedEvent = null,
+                editTitle = "",
+                editDateText = "",
+                editTime = "",
+                editLocation = "",
+                editDescription = "",
+                showEditCalendarEventDialog = false
+            )
+        }
+    }
+
+    fun setUpdateDialogVisible(show: Boolean) {
+        _uiState.update { it.copy(showEditCalendarEventDialog = show) }
+    }
+
+    fun saveEditedEvent() {
+        val state = _uiState.value
+        val selected = state.selectedEvent ?: return
+        val parsedDate = runCatching { LocalDate.parse(state.editDateText) }.getOrNull()
+        if (parsedDate == null) {
+            _uiState.update { it.copy(transientMessage = "Date must be in YYYY-MM-DD format.") }
+            return
+        }
+
+        val updatedEvent = selected.copy(
+            title = state.editTitle,
+            date = parsedDate,
+            time = state.editTime,
+            location = state.editLocation,
+            description = state.editDescription,
+        )
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true) }
+            val result = repository.updateEvent(updatedEvent)
+            _uiState.update {
+                if (result.isSuccess) {
+                    it.copy(
+                        selectedEvent = null,
+                        editTitle = "",
+                        editDateText = "",
+                        editTime = "",
+                        editLocation = "",
+                        editDescription = "",
+                        showEditCalendarEventDialog = false,
+                        isSaving = false,
+                        transientMessage = "Event updated"
+                    )
+                } else {
+                    it.copy(
+                        isSaving = false,
+                        transientMessage = result.exceptionOrNull()?.localizedMessage
+                            ?: "Unable to update event. Try again."
                     )
                 }
             }
