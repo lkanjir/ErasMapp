@@ -265,6 +265,9 @@ class ScheduleViewModel(
         }
     }
 
+    fun clearTransientMessage() {
+        _uiState.update { it.copy(transientMessage = null) }
+    }
 
     private fun ScheduleUiState.resetNewEventForm(): ScheduleUiState {
         val resetDate = LocalDate.now()

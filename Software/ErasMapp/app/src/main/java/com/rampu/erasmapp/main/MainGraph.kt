@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.rampu.erasmapp.eventCalendar.ui.EventCalendarScreen
 import com.rampu.erasmapp.schedule.ui.ScheduleScreen
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
 
@@ -31,15 +30,11 @@ fun MainGraph(
                 composable<HomeRoute> {
                     HomeScreen(
                         onSignOut = onSignOut,
-                        onGoToSchedule = { navController.navigate(ScheduleRoute) },
-                        onGoToEventCalendar = { navController.navigate(EventCalendarRoute) }
+                        onGoToSchedule = { navController.navigate(ScheduleRoute) }
                     )
                 }
                 composable<ScheduleRoute> {
                     ScheduleScreen(onBack = { navController.popBackStack() })
-                }
-                composable<EventCalendarRoute> {
-                    EventCalendarScreen(onBack = { navController.popBackStack() })
                 }
             }
         }
