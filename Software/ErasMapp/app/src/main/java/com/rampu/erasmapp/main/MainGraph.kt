@@ -25,10 +25,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.rampu.erasmapp.adminConsole.AdminConsoleScreen
-import com.rampu.erasmapp.adminConsole.AdminEventsScreen
-import com.rampu.erasmapp.adminConsole.AdminNewsScreen
-import com.rampu.erasmapp.adminConsole.AdminRoomsScreen
 import com.rampu.erasmapp.eventCalendar.ui.EventCalendarScreen
 import com.rampu.erasmapp.schedule.ui.ScheduleScreen
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
@@ -101,28 +97,6 @@ fun MainGraph(
                     ProfileScreen(
                         onSignOut = onSignOut,
                         onGoToAdmin = { navController.navigate(AdminRoute) }
-                    )
-                }
-                composable<AdminRoute> {
-                    AdminConsoleScreen(
-                        onManageEvents = { navController.navigate(AdminEventsRoute) },
-                        onManageRooms = { navController.navigate(AdminRoomsRoute) },
-                        onManageNews = {navController.navigate(AdminNewsRoute) }
-                    )
-                }
-                composable<AdminEventsRoute> {
-                    AdminEventsScreen(
-                        onBack = { navController.popBackStack() }
-                    )
-                }
-                composable<AdminRoomsRoute> {
-                    AdminRoomsScreen(
-                        onBack = { navController.popBackStack() }
-                    )
-                }
-                composable<AdminNewsRoute> {
-                    AdminNewsScreen(
-                        onBack = { navController.popBackStack() }
                     )
                 }
 

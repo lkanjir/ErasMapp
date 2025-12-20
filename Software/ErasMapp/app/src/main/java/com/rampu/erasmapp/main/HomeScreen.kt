@@ -71,15 +71,6 @@ fun HomeScreen(
                 Text("Go to Event Calendar")
             }
         }
-
-        if (isAdmin) {
-            item { Spacer(modifier = Modifier.height(20.dp)) }
-            item {
-                Button(onClick = onGoToAdmin) {
-                    Text("Admin console")
-                }
-            }
-        }
     }
 
 }
