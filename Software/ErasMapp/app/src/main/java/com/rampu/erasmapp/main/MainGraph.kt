@@ -4,22 +4,22 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,9 +29,12 @@ import com.rampu.erasmapp.adminConsole.AdminConsoleScreen
 import com.rampu.erasmapp.adminConsole.AdminEventsScreen
 import com.rampu.erasmapp.adminConsole.AdminNewsScreen
 import com.rampu.erasmapp.adminConsole.AdminRoomsScreen
+import com.rampu.erasmapp.channels.ui.ChannelsScreen
+import com.rampu.erasmapp.channels.ui.ChannelsViewModel
 import com.rampu.erasmapp.eventCalendar.ui.EventCalendarScreen
 import com.rampu.erasmapp.schedule.ui.ScheduleScreen
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MainGraph(
@@ -53,19 +56,19 @@ fun MainGraph(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
-                MainBottomBar(
-                    items = bottomItems,
-                    currentRoute = currentRoute,
-                    onNavigate = { route ->
-                        navController.navigate(route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                )
+//                MainBottomBar(
+//                    items = bottomItems,
+//                    currentRoute = currentRoute,
+//                    onNavigate = { route ->
+//                        navController.navigate(route) {
+//                            popUpTo(navController.graph.findStartDestination().id) {
+//                                saveState = true
+//                            }
+//                            launchSingleTop = true
+//                            restoreState = true
+//                        }
+//                    }
+//                )
             }
         ) { innerPadding ->
             NavHost(
@@ -85,7 +88,8 @@ fun MainGraph(
                         onSignOut = onSignOut,
                         onGoToSchedule = { navController.navigate(ScheduleRoute) },
                         onGoToEventCalendar = { navController.navigate(EventCalendarRoute) },
-                        onGoToAdmin = { navController.navigate(AdminRoute) }
+                        onGoToAdmin = { navController.navigate(AdminRoute) },
+                        onGoToChannels = {navController.navigate(ChannelsRoute)}
                     )
                 }
                 composable<ScheduleRoute> {
@@ -123,6 +127,17 @@ fun MainGraph(
                 composable<AdminNewsRoute> {
                     AdminNewsScreen(
                         onBack = { navController.popBackStack() }
+                    )
+                }
+
+                composable<ChannelsRoute>{
+                    val vm: ChannelsViewModel = koinViewModel()
+                    val state = vm.uiState.collectAsStateWithLifecycle()
+
+                    ChannelsScreen(
+                        onBack = {navController.popBackStack()},
+                        onEvent = vm::onEvent,
+                        state = state.value
                     )
                 }
 

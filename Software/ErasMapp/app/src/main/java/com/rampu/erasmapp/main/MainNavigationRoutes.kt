@@ -11,3 +11,4 @@ import kotlinx.serialization.Serializable
 @Serializable object AdminEventsRoute
 @Serializable object AdminRoomsRoute
 @Serializable object AdminNewsRoute
+@Serializable object ChannelsRoute

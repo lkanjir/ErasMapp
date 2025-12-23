@@ -10,6 +10,8 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview(name = "XL - Pixel Fold (folded)", device = "id:pixel_fold", showSystemUi = true, showBackground = true)
 annotation class PhoneSizePreviews
 
+@Preview(name = "M - Pixel 7", device = "id:pixel_7", showSystemUi = true, showBackground = true)
+annotation class StandardPreview
 @Preview(
     name = "Dark - Pixel 7",
     device = "id:pixel_7",
