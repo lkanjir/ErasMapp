@@ -1,6 +1,6 @@
 package com.rampu.erasmapp.channels.ui.channels
 
-import android.icu.text.DateFormat
+import android.content.Context
 import android.icu.util.Calendar
 import android.text.format.DateUtils
 import androidx.compose.foundation.background
@@ -15,33 +15,35 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
 
 @Composable
 fun ChannelMeta(lastActivityAt: Long?, unreadCount: Int, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = formatTime(lastActivityAt),
-            style = MaterialTheme.typography.bodySmall
+            text = formatTime(context, lastActivityAt),
+            style = MaterialTheme.typography.labelSmall
         )
 
         if (unreadCount > 0) {
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(3.dp))
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.primary, CircleShape)
-                    .padding(5.dp),
+                    .padding(top = 2.dp, bottom = 2.dp, start = 5.dp, end = 5.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = unreadCount.toString(),
+                    text = if (unreadCount >= 100) "99+" else unreadCount.toString(),
                     color = MaterialTheme.colorScheme.onPrimary,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
@@ -51,7 +53,7 @@ fun ChannelMeta(lastActivityAt: Long?, unreadCount: Int, modifier: Modifier = Mo
     }
 }
 
-private fun formatTime(lastActivityAt: Long?): String {
+private fun formatTime(context: Context, lastActivityAt: Long?): String {
     if (lastActivityAt == null) return "New"
 
     val now = System.currentTimeMillis()
@@ -68,14 +70,14 @@ private fun formatTime(lastActivityAt: Long?): String {
 
     return when {
         lastActivityAt >= startOfToday -> DateUtils.formatDateTime(
-            null,
+            context,
             lastActivityAt,
             DateUtils.FORMAT_SHOW_TIME
         )
 
         lastActivityAt >= startOfYesterday -> "Yesterday"
         else -> DateUtils.formatDateTime(
-            null,
+            context,
             lastActivityAt,
             DateUtils.FORMAT_NUMERIC_DATE or DateUtils.FORMAT_NUMERIC_DATE
         )
@@ -85,7 +87,7 @@ private fun formatTime(lastActivityAt: Long?): String {
 @Composable
 @Preview(widthDp = 100, heightDp = 100, showBackground = true)
 fun ChannelMetaPreviewNull() {
-    ErasMappTheme() {
+    ErasMappTheme {
         ChannelMeta(
             unreadCount = 10,
             lastActivityAt = null
@@ -96,7 +98,7 @@ fun ChannelMetaPreviewNull() {
 @Composable
 @Preview(widthDp = 100, heightDp = 100, showBackground = true)
 fun ChannelMetaPreviewToday() {
-    ErasMappTheme() {
+    ErasMappTheme {
         ChannelMeta(
             unreadCount = 10,
             lastActivityAt = System.currentTimeMillis()
@@ -107,7 +109,7 @@ fun ChannelMetaPreviewToday() {
 @Composable
 @Preview(widthDp = 100, heightDp = 100, showBackground = true)
 fun ChannelMetaPreviewYesterday() {
-    ErasMappTheme() {
+    ErasMappTheme {
         ChannelMeta(
             unreadCount = 10,
             lastActivityAt = System.currentTimeMillis() - DateUtils.DAY_IN_MILLIS
@@ -118,9 +120,9 @@ fun ChannelMetaPreviewYesterday() {
 @Composable
 @Preview(widthDp = 100, heightDp = 100, showBackground = true)
 fun ChannelMetaPreviewOlder() {
-    ErasMappTheme() {
+    ErasMappTheme {
         ChannelMeta(
-            unreadCount = 10,
+            unreadCount = 500,
             lastActivityAt = System.currentTimeMillis() - 3 * DateUtils.DAY_IN_MILLIS
         )
     }

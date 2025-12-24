@@ -90,7 +90,7 @@ fun ChannelItem(channel: Channel, onClick: () -> Unit, modifier: Modifier = Modi
                 )
             }
         }
-        Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(6.dp))
         ChannelMeta(
             lastActivityAt = channel.lastActivityAt,
             unreadCount = channel.unreadCount,
