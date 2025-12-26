@@ -1,5 +1,6 @@
 package com.rampu.erasmapp.channels.data
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -79,6 +80,8 @@ class FirebaseChannelRepository(
 
                         val questions =
                             snapshot?.documents?.mapNotNull { it.toQuestion(channelId) }.orEmpty()
+
+                        Log.d("QUESTION_SNAPSHOT", questions.toString())
                         trySend(QuestionsSyncState.Success(questions))
                     }
         }
@@ -194,6 +197,8 @@ class FirebaseChannelRepository(
         }
     }
 
+    override fun currentUserId(): String? = auth.currentUser?.uid
+
     private fun DocumentSnapshot.toQuestionMeta(): QuestionMeta? {
         val questionId = getString("questionId") ?: id
         val lastSeenAnswerCount = getLong("lastSeenAnswerCount") ?: 0L
@@ -231,7 +236,7 @@ class FirebaseChannelRepository(
         questionsFS(channelId).document(questionId).collection("answers")
 
     private fun DocumentSnapshot.toQuestion(channelId: String): Question? {
-        val id = getString("id") ?: return null
+        val questionId = getString("id") ?: id
         val title = getString("title") ?: return null
         val body = getString("body") ?: ""
         val authorId = getString("authorId") ?: ""
@@ -243,7 +248,7 @@ class FirebaseChannelRepository(
         val answerCount = getLong("answerCount")?: 0L
 
         return Question(
-            id = id,
+            id = questionId,
             channelId = channelId,
             title = title,
             body = body,
@@ -261,14 +266,14 @@ class FirebaseChannelRepository(
         channelFS().document(channelId).collection("questions")
 
     private fun DocumentSnapshot.toChannel(): Channel? {
-        val id = getString("id") ?: return null
+        val channelId = getString("id") ?: id
         val title = getString("title") ?: ""
         val topic = getString("topic") ?: ""
         val description = getString("description") ?: ""
         val createdBy = getString("createdBy") ?: ""
 
         return Channel(
-            id = id,
+            id = channelId,
             title = title,
             topic = topic,
             description = description,

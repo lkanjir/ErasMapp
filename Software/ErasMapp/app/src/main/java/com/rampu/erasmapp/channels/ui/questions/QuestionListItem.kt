@@ -7,5 +7,5 @@ data class QuestionListItem(
     val authorLabel: String,
     val authorPhotoUrl: String?,
     val lastActivityAt: Long?,
-    val unreadCount: Int
+    val unreadCount: Long
 )

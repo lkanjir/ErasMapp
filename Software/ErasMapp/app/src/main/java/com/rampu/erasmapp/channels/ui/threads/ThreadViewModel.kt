@@ -45,13 +45,16 @@ class ThreadViewModel(
                         )
                     }
 
-                    is QuestionDetailSyncState.Success -> uiState.update {
-                        it.copy(
-                            question = syncState.question,
-                            isLoading = false,
-                            errorMsg = null,
-                            isSignedOut = false
-                        )
+                    is QuestionDetailSyncState.Success -> {
+                        uiState.update {
+                            it.copy(
+                                question = syncState.question,
+                                isLoading = false,
+                                errorMsg = null,
+                                isSignedOut = false
+                            )
+                        }
+                        viewModelScope.launch { repo.updateQuestionMeta(syncState.question.id, syncState.question.answerCount) }
                     }
 
                     is QuestionDetailSyncState.Error -> uiState.update {
@@ -145,12 +148,13 @@ class ThreadViewModel(
         }
     }
 
-    fun onEvent(event: ThreadEvent){
-        when(event){
+    fun onEvent(event: ThreadEvent) {
+        when (event) {
             is ThreadEvent.PostAnswer -> {
                 createAnswer()
                 uiState.update { it.copy(newAnswer = "") }
             }
+
             is ThreadEvent.BodyChanged -> uiState.update { it.copy(newAnswer = event.v) }
         }
     }

@@ -1,16 +1,11 @@
 package com.rampu.erasmapp.channels.ui.questions
 
-import android.graphics.Paint
-import android.widget.Space
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.rampu.erasmapp.channels.domian.Question
+import com.rampu.erasmapp.common.ui.components.ErrorMessage
 import com.rampu.erasmapp.common.ui.components.LabeledInputField
 import com.rampu.erasmapp.common.ui.components.LoadingIndicator
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
@@ -99,6 +93,23 @@ fun QuestionsScreen(
             )
         }
 
+        !state.errorMsg.isNullOrBlank() -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        text = channelTitle,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    ErrorMessage(message = state.errorMsg)
+                }
+            }
+        }
+
         else -> {
             Box(
                 modifier = Modifier
@@ -158,7 +169,8 @@ fun QuestionScreenPreview() {
                         lastActivityAt = System.currentTimeMillis(),
                         unreadCount = 10
                     )
-                )
+                ),
+                errorMsg = "Preview error"
             )
         )
     }

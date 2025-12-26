@@ -8,6 +8,7 @@ interface IChannelRepository {
     fun observeSingleQuestion(channelId: String, questionId: String): Flow<QuestionDetailSyncState>
     fun observeAnswers(channelId: String, questionId: String): Flow<AnswerSyncState>
     fun observerQuestionMeta(): Flow<QuestionMetaSyncState>
+    fun currentUserId(): String?
     suspend fun createChannel(
         title: String,
         topic: String,

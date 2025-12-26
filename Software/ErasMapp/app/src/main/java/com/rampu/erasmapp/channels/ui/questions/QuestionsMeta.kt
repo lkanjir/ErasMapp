@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
 
 @Composable
-fun QuestionsMeta(lastActivityAt: Long?, unreadCount: Int, modifier: Modifier = Modifier) {
+fun QuestionsMeta(lastActivityAt: Long?, unreadCount: Long, modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
     Column(
