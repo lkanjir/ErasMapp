@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.rampu.erasmapp.channels.domian.AnswerSyncState
 import com.rampu.erasmapp.channels.domian.IChannelRepository
 import com.rampu.erasmapp.channels.domian.QuestionDetailSyncState
+import com.rampu.erasmapp.channels.domian.QuestionStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -42,18 +43,26 @@ class ThreadViewModel(
                     is QuestionDetailSyncState.Loading -> uiState.update {
                         it.copy(
                             isLoading = true,
-                            errorMsg = null
+                            errorMsg = null,
+                            canSendAnswer = false
                         )
                     }
 
                     is QuestionDetailSyncState.Success -> {
                         val question = syncState.question
+                        val canSend = canSend(
+                            question.status,
+                            uiState.value.newAnswer,
+                            uiState.value.isSaving
+                        )
                         uiState.update {
                             it.copy(
                                 question = question,
                                 isLoading = false,
                                 errorMsg = null,
-                                isSignedOut = false
+                                isSignedOut = false,
+                                showMessageBox = question.status != QuestionStatus.LOCKED,
+                                canSendAnswer = canSend
                             )
                         }
                         viewModelScope.launch {
@@ -68,7 +77,8 @@ class ThreadViewModel(
                         it.copy(
                             isLoading = false,
                             errorMsg = syncState.message,
-                            isSignedOut = false
+                            isSignedOut = false,
+                            canSendAnswer = false
                         )
                     }
 
@@ -77,7 +87,8 @@ class ThreadViewModel(
                             question = null,
                             isLoading = false,
                             errorMsg = "Sign in to view threads",
-                            isSignedOut = true
+                            isSignedOut = true,
+                            canSendAnswer = false
                         )
                     }
                 }
@@ -130,10 +141,15 @@ class ThreadViewModel(
 
     fun createAnswer() {
         val question = uiState.value.question ?: return
-        val body = uiState.value.newAnswer
+        val body = uiState.value.newAnswer.trim()
+
+        if (body.isBlank()) {
+            uiState.update { it.copy(canSendAnswer = false) }
+            return
+        }
 
         viewModelScope.launch {
-            uiState.update { it.copy(isSaving = true) }
+            uiState.update { it.copy(isSaving = true, canSendAnswer = false) }
             val result = repo.createAnswer(
                 channelId = channelId,
                 questionId = questionId,
@@ -141,17 +157,19 @@ class ThreadViewModel(
             )
 
             uiState.update {
+                val canSend = canSend(question.status, if (result.isSuccess) "" else body, false)
                 if (result.isSuccess) {
                     it.copy(
                         newAnswer = "",
                         isSaving = false,
-                        canSendAnswer = false
+                        canSendAnswer = canSend,
+                        errorMsg = null
                     )
                 } else {
                     it.copy(
                         isSaving = false,
                         errorMsg = "Unable to post your answer. Try again.",
-                        canSendAnswer = false
+                        canSendAnswer = canSend
                     )
                 }
             }
@@ -159,18 +177,56 @@ class ThreadViewModel(
         }
     }
 
+    private fun canSend(
+        status: QuestionStatus?,
+        body: String,
+        isSaving: Boolean
+    ): Boolean {
+        val locked = status == QuestionStatus.LOCKED
+        return !body.isBlank() && !locked && !isSaving
+    }
+
     fun onEvent(event: ThreadEvent) {
         when (event) {
             is ThreadEvent.PostAnswer -> createAnswer()
             is ThreadEvent.BodyChanged -> {
-                if (!event.v.isBlank()) uiState.update {
-                    it.copy(
-                        newAnswer = event.v,
-                        canSendAnswer = true
-                    )
-                }
-                else uiState.update { it.copy(newAnswer = event.v, canSendAnswer = false) }
+                val canSend =
+                    canSend(uiState.value.question?.status, event.v, uiState.value.isSaving)
+                uiState.update { it.copy(newAnswer = event.v, canSendAnswer = canSend) }
+            }
+
+            is ThreadEvent.AcceptAnswer -> acceptAnswer(event.answerId)
+            is ThreadEvent.ToggleLock -> toggleLock()
+        }
+    }
+
+    private fun toggleLock() {
+        val question = uiState.value.question ?: return
+        if(question.status == QuestionStatus.OPEN) return
+
+        val newStatus = if(question.status == QuestionStatus.LOCKED) QuestionStatus.ANSWERED else QuestionStatus.LOCKED
+        viewModelScope.launch {
+            val result = repo.setQuestionStatus(channelId,questionId,newStatus)
+            if(result.isFailure) uiState.update { it.copy(errorMsg = "Unable to update thread status") }
+            else{
+                val msg = if(newStatus == QuestionStatus.LOCKED) "Thread locked" else "Thread unlocked"
+                uiState.update { it.copy(toastMsg = msg) }
             }
         }
     }
+
+    private fun acceptAnswer(answerId: String) {
+        val question = uiState.value.question ?: return
+        if (question.status == QuestionStatus.LOCKED) {
+            uiState.update { it.copy(errorMsg = "Thread is locked") }
+            return
+        }
+
+        viewModelScope.launch {
+            val result = repo.acceptAnswer(channelId, questionId, answerId)
+            if (result.isFailure) uiState.update { it.copy(errorMsg = "Unable to mark answer as accepted") }
+        }
+    }
+
+
 }

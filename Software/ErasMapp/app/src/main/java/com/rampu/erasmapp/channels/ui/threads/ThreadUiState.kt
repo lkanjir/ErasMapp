@@ -15,5 +15,7 @@ data class ThreadUiState(
     val isSaving: Boolean = false,
     val newAnswer: String = "",
     val currentUserId: String? = null,
-    val canSendAnswer: Boolean = false
+    val canSendAnswer: Boolean = false,
+    val showMessageBox: Boolean = true,
+    val toastMsg: String? = null
 )

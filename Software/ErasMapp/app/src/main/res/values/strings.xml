@@ -11,4 +11,10 @@
     <string name="password_visibility_icon">Password visibility icon</string>
     <string name="open">Open</string>
     <string name="answered">Answered</string>
+    <string name="accepted_answer">Accepted answer</string>
+    <string name="accepted">Accepted</string>
+    <string name="send">Send</string>
+    <string name="your_answer">Your answer...</string>
+    <string name="no_answers_yet">No answers yet</string>
+    <string name="go_to_accepted_answer">Go to accepted answer</string>
 </resources>
