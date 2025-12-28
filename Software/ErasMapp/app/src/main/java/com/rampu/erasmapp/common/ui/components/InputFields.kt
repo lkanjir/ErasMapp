@@ -26,11 +26,11 @@ import com.rampu.erasmapp.ui.theme.ErasMappTheme
 fun LabeledInputField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String,
+    label: String? = null,
     modifier: Modifier = Modifier,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
-    placeholder: String = label,
+    placeholder: String = label ?: "",
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -38,12 +38,14 @@ fun LabeledInputField(
     enabled: Boolean = true
 ) {
     Column(modifier = modifier) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(Modifier.height(6.dp))
+        if(!label.isNullOrBlank()){
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(Modifier.height(6.dp))
+        }
         TextField(
             value = value,
             onValueChange = onValueChange,
@@ -74,7 +76,7 @@ fun LabelInputFiledPreview() {
         LabeledInputField(
             value = "",
             onValueChange = {},
-            label = "Email",
+            label = "E-mail",
             modifier = Modifier,
             leadingIcon = {
                 Icon(

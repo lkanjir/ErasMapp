@@ -26,7 +26,8 @@ fun HomeScreen(
     onSignOut: () -> Unit,
     onGoToSchedule: () -> Unit,
     onGoToEventCalendar: () -> Unit,
-    onGoToAdmin: () -> Unit
+    onGoToAdmin: () -> Unit,
+    onGoToChannels: () -> Unit,
 ){
     val repository: EventCalendarRepository = koinInject()
     val adminFlow = remember(repository) { repository.observeAdminStatus() }
@@ -78,6 +79,13 @@ fun HomeScreen(
                 Button(onClick = onGoToAdmin) {
                     Text("Admin console")
                 }
+            }
+        }
+
+        item { Spacer(modifier = Modifier.height(20.dp)) }
+        item{
+            Button(onClick = onGoToChannels) {
+                Text("Go  to channels")
             }
         }
     }
