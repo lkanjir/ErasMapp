@@ -5,9 +5,7 @@ data class NewsItem(
     val title: String,
     val body: String,
     val topic: String,
-    val isUrgent: String,
+    val isUrgent: Boolean,
     val createdAt: Long,
-    val publishedAt: Long,
-    val expiresAt: Long?,
     val authorId: String?
 )
