@@ -1,4 +1,4 @@
-package com.rampu.erasmapp.main
+package com.rampu.erasmapp.navigation
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -15,8 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -53,7 +57,9 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun MapScreen() {
+fun MapScreen(
+    onBack: () -> Unit
+) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -120,7 +126,7 @@ fun MapScreen() {
                         userLocation = userLatLng
                         coroutineScope.launch {
                             cameraPositionState.animate(
-                                com.google.android.gms.maps.CameraUpdateFactory.newCameraPosition(
+                                CameraUpdateFactory.newCameraPosition(
                                     CameraPosition.fromLatLngZoom(userLatLng, 15f)
                                 )
                             )
@@ -215,7 +221,7 @@ fun MapScreen() {
                                     userLocation = userLatLng
                                     coroutineScope.launch {
                                         cameraPositionState.animate(
-                                            com.google.android.gms.maps.CameraUpdateFactory.newCameraPosition(
+                                            CameraUpdateFactory.newCameraPosition(
                                                 CameraPosition.fromLatLngZoom(userLatLng, 15f)
                                             )
                                         )
@@ -291,6 +297,9 @@ fun MapScreen() {
                             }
                         }
                     }
+                }
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
             }
         }

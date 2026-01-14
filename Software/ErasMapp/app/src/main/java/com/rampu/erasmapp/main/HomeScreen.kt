@@ -1,6 +1,6 @@
 package com.rampu.erasmapp.main
 
-import android.content.Intent
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.rampu.erasmapp.NavigationActivity
 import com.rampu.erasmapp.eventCalendar.data.EventCalendarRepository
 import org.koin.compose.koinInject
 
@@ -28,11 +27,12 @@ fun HomeScreen(
     onGoToEventCalendar: () -> Unit,
     onGoToAdmin: () -> Unit,
     onGoToChannels: () -> Unit,
+    onGoToFOI : () -> Unit,
+    onGoToNavigation : () -> Unit
 ){
     val repository: EventCalendarRepository = koinInject()
     val adminFlow = remember(repository) { repository.observeAdminStatus() }
     val isAdmin by adminFlow.collectAsState(initial = false)
-    val context = LocalContext.current
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -44,13 +44,6 @@ fun HomeScreen(
 
         item { Spacer(modifier = Modifier.height(20.dp)) }
 
-        item {
-            Button(onClick = {
-                context.startActivity(Intent(context, NavigationActivity::class.java))
-            }) {
-                Text("Navigation")
-            }
-        }
 
         item { Spacer(modifier = Modifier.height(20.dp)) }
         item {
@@ -70,6 +63,21 @@ fun HomeScreen(
         item {
             Button(onClick = onGoToEventCalendar) {
                 Text("Go to Event Calendar")
+            }
+        }
+        item { Spacer(modifier = Modifier.height(20.dp)) }
+        item {
+            Button(
+                onClick = onGoToNavigation) {
+                Text("Go to Navigation")
+            } 
+        }
+
+        item { Spacer(modifier = Modifier.height(20.dp)) }
+        item {
+            Button(
+                onClick = onGoToFOI) {
+                Text("FOI Buildings")
             }
         }
 

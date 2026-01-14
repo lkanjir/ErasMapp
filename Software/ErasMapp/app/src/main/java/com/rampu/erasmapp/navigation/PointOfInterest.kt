@@ -1,4 +1,4 @@
-package com.rampu.erasmapp.main
+package com.rampu.erasmapp.navigation
 
 import com.google.android.gms.maps.model.LatLng
 
