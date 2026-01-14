@@ -1,5 +1,6 @@
 package com.rampu.erasmapp.main
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -125,6 +126,7 @@ fun MainGraph(
                 }
 
                 composable<FOIRoute> {
+                    Log.d("Deb", "FOIRoute composable called")
                     BuildingScreen(
                         onBack = { navController.popBackStack() }
                     )

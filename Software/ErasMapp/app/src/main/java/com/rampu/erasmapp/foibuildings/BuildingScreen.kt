@@ -1,5 +1,6 @@
 package com.rampu.erasmapp.foibuildings
 
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -16,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -26,21 +28,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.rampu.erasmapp.R
+import java.lang.String
+import java.util.Locale
+import kotlin.Int
+import kotlin.Unit
 
 
 private val buildings = listOf(
-    Building(R.drawable.foi1, 1, "This is the main FOI building."),
-    Building(R.drawable.foi2, 2, "This is the second FOI building."),
-    Building(R.drawable.foi3, 3, "This is the third FOI building.")
+    Building(R.drawable.foi1, 1, R.raw.building_foi1, 46.30771134049019, 16.33798053554669),
+    Building(R.drawable.foi2, 2, R.raw.building_foi2, 46.3093296,16.3417354),
+    Building(R.drawable.foi3, 3, R.raw.building_foi3, 46.3083729,16.3407763)
 )
 
 @Composable
 fun BuildingScreen(
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     var selectedBuilding by remember { mutableStateOf<Int?>(null) }
 
     BackHandler(enabled = selectedBuilding != null) {
@@ -63,7 +71,8 @@ fun BuildingScreen(
             ) {
                 Column(
                     modifier = Modifier.clickable {
-                        selectedBuilding = if (selectedBuilding == building.id) null else building.id
+                        selectedBuilding =
+                            if (selectedBuilding == building.id) null else building.id
                     },
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -76,10 +85,41 @@ fun BuildingScreen(
                         enter = fadeIn() + expandVertically(),
                         exit = fadeOut() + shrinkVertically()
                     ) {
-                        Text(
-                            text = building.description,
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
+                        val description = context.resources
+                            .openRawResource(building.descriptionRes)
+                            .bufferedReader()
+                            .use { it.readText() }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = description,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                            Button(
+                                onClick = {
+                                    val uri: String? =
+                                        String.format(
+                                            Locale.ENGLISH,
+                                            "google.navigation:q=%f,%f",
+                                            building.latitude,
+                                            building.longitude
+                                        ) as String?
+                                    val intent = Intent(
+                                        Intent.ACTION_VIEW,
+                                        android.net.Uri.parse(uri as kotlin.String?)
+                                    )
+                                    context.startActivity(intent)
+                                }
+                            ) {
+                                Text(text = "Show Itinerary")
+                            }
+                            Button(
+                                onClick = {}
+                            ) {
+                                Text(text = "Show Rooms")
+                            }
+                        }
                     }
                 }
             }

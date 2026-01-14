@@ -70,7 +70,7 @@ fun HomeScreen(
             Button(
                 onClick = onGoToNavigation) {
                 Text("Go to Navigation")
-            }
+            } 
         }
 
         item { Spacer(modifier = Modifier.height(20.dp)) }
