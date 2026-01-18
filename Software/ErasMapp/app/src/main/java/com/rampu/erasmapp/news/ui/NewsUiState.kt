@@ -7,4 +7,13 @@ data class NewsUiState(
     val isLoading: Boolean = true,
     val errorMsg: String? = null,
     val isSignedOut: Boolean = false,
+    val isSaving: Boolean = false,
+    val isAdmin: Boolean = false,
+    val actionError: String? = null,
+    val editId: String? = null,
+    val editTitle: String = "",
+    val editBody: String = "",
+    val editTopic: String = "",
+    val editUrgent: Boolean = false,
+    val editorError: String? = null
 )

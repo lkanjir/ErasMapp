@@ -1,9 +1,12 @@
 package com.rampu.erasmapp.news.ui
 
+import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -44,6 +47,13 @@ fun NewsScreen(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
+                NewsHeader(
+                    showAdd = state.isAdmin,
+                    addEnabled = !state.isSaving,
+                    onAdd = { onEvent(NewsEvent.ShowEditor(null)) }
+                )
+                Spacer(Modifier.height(10.dp))
+                state.actionError?.let { ErrorMessage(message = it) }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -64,7 +74,7 @@ fun NewsScreen(
 }
 
 @Composable
-@Preview()
+@Preview(showBackground = true)
 fun NewsScreenPreview() {
     ErasMappTheme {
         NewsScreen(
