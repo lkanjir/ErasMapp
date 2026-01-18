@@ -36,6 +36,8 @@ import com.rampu.erasmapp.channels.ui.questions.QuestionsViewModel
 import com.rampu.erasmapp.channels.ui.threads.ThreadScreen
 import com.rampu.erasmapp.channels.ui.threads.ThreadViewModel
 import com.rampu.erasmapp.eventCalendar.ui.EventCalendarScreen
+import com.rampu.erasmapp.news.ui.NewsScreen
+import com.rampu.erasmapp.news.ui.NewsViewModel
 import com.rampu.erasmapp.schedule.ui.ScheduleScreen
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
 import org.koin.androidx.compose.koinViewModel
@@ -91,7 +93,8 @@ fun MainGraph(
                         onGoToSchedule = { navController.navigate(ScheduleRoute) },
                         onGoToEventCalendar = { navController.navigate(EventCalendarRoute) },
                         onGoToAdmin = { navController.navigate(AdminRoute) },
-                        onGoToChannels = { navController.navigate(ChannelsRoute) }
+                        onGoToChannels = { navController.navigate(ChannelsRoute) },
+                        onGoToNews = { navController.navigate(NewsRoute) }
                     )
                 }
                 composable<ScheduleRoute> {
@@ -178,7 +181,13 @@ fun MainGraph(
                     val channelId = route.channelId
                     val channelTitle = route.channelTitle
                     val questionId = route.questionId
-                    val vm: ThreadViewModel = koinViewModel(parameters = {parametersOf(channelId,channelTitle,questionId)})
+                    val vm: ThreadViewModel = koinViewModel(parameters = {
+                        parametersOf(
+                            channelId,
+                            channelTitle,
+                            questionId
+                        )
+                    })
                     val state = vm.uiState.collectAsStateWithLifecycle()
 
                     ThreadScreen(
@@ -188,10 +197,20 @@ fun MainGraph(
                     )
                 }
 
+                composable<NewsRoute> {
+                    val vm: NewsViewModel = koinViewModel()
+                    val state = vm.uiState.collectAsStateWithLifecycle()
+
+                    NewsScreen(
+                        onBack = { navController.popBackStack() },
+                        onEvent = vm::onEvent,
+                        state = state.value
+                    )
+                }
+
             }
         }
     }
-
 }
 
 private data class BottomNavItem(

@@ -28,6 +28,7 @@ fun HomeScreen(
     onGoToEventCalendar: () -> Unit,
     onGoToAdmin: () -> Unit,
     onGoToChannels: () -> Unit,
+    onGoToNews: () -> Unit
 ){
     val repository: EventCalendarRepository = koinInject()
     val adminFlow = remember(repository) { repository.observeAdminStatus() }
@@ -88,6 +89,14 @@ fun HomeScreen(
                 Text("Go  to channels")
             }
         }
+
+        item { Spacer(modifier = Modifier.height(20.dp)) }
+        item{
+            Button(onClick = onGoToNews) {
+                Text("Go  to news")
+            }
+        }
+
     }
 
 }
