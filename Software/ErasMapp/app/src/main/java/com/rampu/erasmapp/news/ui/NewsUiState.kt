@@ -15,5 +15,7 @@ data class NewsUiState(
     val editBody: String = "",
     val editTopic: String = "",
     val editUrgent: Boolean = false,
-    val editorError: String? = null
+    val editorError: String? = null,
+    val editCreatedAt: Long = 0L,
+    val showEditor: Boolean = false
 )

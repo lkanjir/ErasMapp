@@ -41,6 +41,10 @@ fun NewsScreen(
             ErrorMessage(message = state.errorMsg)
         }
 
+        state.showEditor -> {
+            NewsEditor(state= state, onEvent = onEvent)
+        }
+
         else -> {
             Column(
                 modifier = Modifier
@@ -83,6 +87,7 @@ fun NewsScreenPreview() {
             onOpenNews = { },
             state = NewsUiState(
                 isLoading = false,
+                isAdmin = true,
                 news = listOf(
                     NewsItem(
                         id = "id",

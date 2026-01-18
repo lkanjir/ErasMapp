@@ -3,6 +3,7 @@ package com.rampu.erasmapp.news.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rampu.erasmapp.news.domain.INewsRepository
+import com.rampu.erasmapp.news.domain.NewsItem
 import com.rampu.erasmapp.news.domain.NewsSyncState
 import com.rampu.erasmapp.user.domain.IUserRepository
 import kotlinx.coroutines.Job
@@ -17,9 +18,20 @@ class NewsViewModel(private val repo: INewsRepository, private val userRepo: IUs
         private set
 
     private var observeJob: Job? = null
+    private var adminJob: Job? =null
 
     init {
         observeNews()
+        observeAdminStatus()
+    }
+
+    private fun observeAdminStatus() {
+        adminJob?.cancel()
+        adminJob = viewModelScope.launch {
+            userRepo.observeAdminStatus().collect { isAdmin ->
+                uiState.update { it.copy(isAdmin = isAdmin, showEditor = if (isAdmin) it.showEditor else false) }
+            }
+        }
     }
 
     private fun observeNews() {
@@ -67,6 +79,123 @@ class NewsViewModel(private val repo: INewsRepository, private val userRepo: IUs
     }
 
     fun onEvent(event: NewsEvent) {
+        when (event) {
+            is NewsEvent.TitleChanged -> uiState.update {
+                it.copy(
+                    editTitle = event.v,
+                    editorError = null
+                )
+            }
 
+            is NewsEvent.BodyChanged -> uiState.update {
+                it.copy(
+                    editBody = event.v,
+                    editorError = null
+                )
+            }
+
+            is NewsEvent.TopicChanged -> uiState.update {
+                it.copy(
+                    editTopic = event.v,
+                    editorError = null
+                )
+            }
+
+            is NewsEvent.UrgentChanged -> uiState.update { it.copy(editUrgent = event.v) }
+            is NewsEvent.ShowEditor -> openEditor(event.item)
+            is NewsEvent.DismissEditor -> dismissEditor()
+            is NewsEvent.SaveNews -> saveNews()
+        }
+    }
+
+    private fun saveNews() {
+        val state = uiState.value
+        if (!state.isAdmin) {
+            uiState.update { it.copy(actionError = "Only staff can manage news") }
+            return
+        }
+
+        val title = state.editTitle.trim()
+        val topic = state.editBody.trim()
+        val body = state.editBody.trim()
+
+        if (title.isBlank() || body.isBlank() || topic.isBlank()) {
+            uiState.update { it.copy(editorError = "Title, topic, and body are required") }
+            return
+        }
+
+        val createdAt =
+            if (state.editId.isNullOrBlank()) System.currentTimeMillis() else state.editCreatedAt
+
+        val item = NewsItem(
+            id = state.editId.orEmpty(),
+            title = title,
+            body = body,
+            topic = topic,
+            isUrgent = state.editUrgent,
+            createdAt = createdAt,
+            authorId = null
+        )
+
+        viewModelScope.launch {
+            uiState.update { it.copy(isSaving = true, editorError = null) }
+            val result =
+                if (state.editId.isNullOrBlank()) repo.createNews(item) else repo.updateNews(item)
+
+            uiState.update {
+                if (result.isSuccess) it.resetEditor() else it.copy(
+                    isSaving = false,
+                    editorError = "Error when saving news."
+                )
+            }
+        }
+    }
+
+    private fun dismissEditor() {
+        uiState.update { it.resetEditor() }
+    }
+
+    private fun openEditor(item: NewsItem?) {
+        if (!uiState.value.isAdmin) {
+            uiState.update { it.copy(actionError = "Only staff can manage news") }
+            return
+        }
+
+        uiState.update {
+            if (item == null) {
+                it.copy(
+                    showEditor = true,
+                    editId = null,
+                    editTitle = "",
+                    editTopic = "",
+                    editBody = "",
+                    editUrgent = false,
+                    editCreatedAt = 0L,
+                    editorError = null,
+                )
+            } else {
+                it.copy(
+                    showEditor = true,
+                    editId = item.id,
+                    editTitle = item.title,
+                    editBody = item.body,
+                    editTopic = item.topic,
+                    editUrgent = item.isUrgent,
+                    editCreatedAt = item.createdAt,
+                    editorError = null
+                )
+            }
+        }
     }
 }
+
+private fun NewsUiState.resetEditor(): NewsUiState = copy(
+    showEditor = false,
+    editId = null,
+    editTitle = "",
+    editTopic = "",
+    editBody = "",
+    editUrgent = false,
+    isSaving = false,
+    editorError = null
+)
