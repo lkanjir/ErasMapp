@@ -12,6 +12,8 @@ import kotlinx.serialization.Serializable
 @Serializable object AdminRoomsRoute
 @Serializable object AdminNewsRoute
 @Serializable object ChannelsRoute
+@Serializable object NavigationRoute
+@Serializable object FOIRoute
 @Serializable data class QuestionsRoute(val channelId: String, val channelTitle: String)
 @Serializable data class ThreadRoute(val channelId: String, val channelTitle: String, val questionId: String)
 @Serializable object NewsRoute

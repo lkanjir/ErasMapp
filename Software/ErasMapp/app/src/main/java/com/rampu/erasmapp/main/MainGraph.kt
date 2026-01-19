@@ -1,14 +1,8 @@
 package com.rampu.erasmapp.main
 
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,8 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,6 +28,8 @@ import com.rampu.erasmapp.channels.ui.questions.QuestionsViewModel
 import com.rampu.erasmapp.channels.ui.threads.ThreadScreen
 import com.rampu.erasmapp.channels.ui.threads.ThreadViewModel
 import com.rampu.erasmapp.eventCalendar.ui.EventCalendarScreen
+import com.rampu.erasmapp.foibuildings.BuildingScreen
+import com.rampu.erasmapp.navigation.MapScreen
 import com.rampu.erasmapp.news.ui.NewsDetailScreen
 import com.rampu.erasmapp.news.ui.NewsScreen
 import com.rampu.erasmapp.news.ui.NewsViewModel
@@ -95,6 +89,8 @@ fun MainGraph(
                         onGoToEventCalendar = { navController.navigate(EventCalendarRoute) },
                         onGoToAdmin = { navController.navigate(AdminRoute) },
                         onGoToChannels = { navController.navigate(ChannelsRoute) },
+                        onGoToFOI = { navController.navigate(FOIRoute) },
+                        onGoToNavigation = { navController.navigate(NavigationRoute) },
                         onGoToNews = { navController.navigate(NewsRoute) }
                     )
                 }
@@ -103,9 +99,6 @@ fun MainGraph(
                 }
                 composable<EventCalendarRoute> {
                     EventCalendarScreen(onBack = { navController.popBackStack() })
-                }
-                composable<MapRoute> {
-                    MapScreen()
                 }
                 composable<ProfileRoute> {
                     ProfileScreen(
@@ -132,6 +125,19 @@ fun MainGraph(
                 }
                 composable<AdminNewsRoute> {
                     AdminNewsScreen(
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
+                composable<FOIRoute> {
+                    Log.d("Deb", "FOIRoute composable called")
+                    BuildingScreen(
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
+                composable<NavigationRoute> {
+                    MapScreen(
                         onBack = { navController.popBackStack() }
                     )
                 }

@@ -1,6 +1,8 @@
 package com.rampu.erasmapp
 
 import android.app.Application
+import android.content.pm.PackageManager
+import com.google.android.libraries.places.api.Places
 import com.rampu.erasmapp.auth.authModule
 import com.rampu.erasmapp.channels.channelsModule
 import com.rampu.erasmapp.eventCalendar.eventCalendarModule
@@ -14,6 +16,16 @@ import org.koin.core.context.startKoin
 class App : Application(){
     override fun onCreate() {
         super.onCreate()
+
+        try {
+            val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+            val apiKey = appInfo.metaData.getString("com.google.android.geo.API_KEY")
+            if (apiKey != null && !Places.isInitialized()) {
+                Places.initialize(applicationContext, apiKey)
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
 
         startKoin {
             androidContext(this@App)
