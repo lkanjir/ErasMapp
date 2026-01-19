@@ -44,24 +44,32 @@ fun channelIconForKey(iconKey: String?): ImageVector? {
     return ImageVector.vectorResource(resiId)
 }
 
+fun channelIconLabelForKey(iconKey: String?): String?{
+    if(iconKey.isNullOrBlank()) return null
+    return channelIconOptions.firstOrNull{it.key == iconKey}?.label
+}
+
 @Composable
 fun ChannelIconPicker(
     selectedKey: String?,
     onSelected: (String?) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showAuto: Boolean = true
 ) {
     LazyRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         contentPadding = PaddingValues(4.dp)
     ) {
-        item {
-            ChannelIconItem(
-                label = "Auto",
-                icon = null,
-                isSelected = selectedKey == null,
-                onclick = { onSelected(null) }
-            )
+        if (showAuto) {
+            item {
+                ChannelIconItem(
+                    label = "Auto",
+                    icon = null,
+                    isSelected = selectedKey == null,
+                    onclick = { onSelected(null) }
+                )
+            }
         }
         items(channelIconOptions, key = { it.key }) { option ->
             ChannelIconItem(

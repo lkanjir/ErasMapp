@@ -7,5 +7,7 @@ data class NewsItem(
     val topic: String,
     val isUrgent: Boolean,
     val createdAt: Long,
-    val authorId: String?
+    val authorId: String?,
+    val authorLabel: String?,
+    val authorPhotoUrl: String?
 )

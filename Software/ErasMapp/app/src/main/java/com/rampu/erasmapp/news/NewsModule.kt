@@ -8,7 +8,7 @@ import org.koin.dsl.module
 import org.koin.viewmodel.scope.viewModelScope
 
 val newsModule = module {
-    single<INewsRepository> { FirebaseNewsRepository(get(), get()) }
+    single<INewsRepository> { FirebaseNewsRepository(get(), get(), get()) }
     viewModel { NewsViewModel(get(), get()) }
 
 }

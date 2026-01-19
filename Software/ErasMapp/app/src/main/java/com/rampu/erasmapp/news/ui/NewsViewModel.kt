@@ -13,9 +13,9 @@ import kotlinx.coroutines.launch
 
 class NewsViewModel(private val repo: INewsRepository, private val userRepo: IUserRepository) :
     ViewModel() {
-
     var uiState = MutableStateFlow(NewsUiState())
         private set
+    val defaultCategory = "general"
 
     private var observeJob: Job? = null
     private var adminJob: Job? = null
@@ -161,7 +161,9 @@ class NewsViewModel(private val repo: INewsRepository, private val userRepo: IUs
             topic = topic,
             isUrgent = state.editUrgent,
             createdAt = createdAt,
-            authorId = authorId
+            authorId = authorId,
+            authorLabel = state.editAuthorLabel,
+            authorPhotoUrl = state.editAuthorPhotoUrl
         )
 
         viewModelScope.launch {
@@ -194,11 +196,13 @@ class NewsViewModel(private val repo: INewsRepository, private val userRepo: IUs
                     showEditor = true,
                     editId = null,
                     editTitle = "",
-                    editTopic = "",
+                    editTopic = defaultCategory,
                     editBody = "",
                     editUrgent = false,
                     editCreatedAt = 0L,
                     editAuthorId = null,
+                    editAuthorLabel = null,
+                    editAuthorPhotoUrl = null,
                     editorError = null,
                 )
             } else {
@@ -211,6 +215,8 @@ class NewsViewModel(private val repo: INewsRepository, private val userRepo: IUs
                     editUrgent = item.isUrgent,
                     editCreatedAt = item.createdAt,
                     editAuthorId = item.authorId,
+                    editAuthorLabel = item.authorLabel,
+                    editAuthorPhotoUrl = item.authorPhotoUrl,
                     editorError = null
                 )
             }
@@ -227,6 +233,8 @@ private fun NewsUiState.resetEditor(): NewsUiState = copy(
     editUrgent = false,
     editCreatedAt = 0L,
     editAuthorId = null,
+    editAuthorLabel = null,
+    editAuthorPhotoUrl = null,
     isSaving = false,
     editorError = null
 )

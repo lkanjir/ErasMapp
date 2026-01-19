@@ -1,6 +1,5 @@
 package com.rampu.erasmapp.news.ui
 
-import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +18,9 @@ import androidx.compose.ui.unit.dp
 import com.rampu.erasmapp.common.ui.components.ErrorMessage
 import com.rampu.erasmapp.common.ui.components.LoadingIndicator
 import com.rampu.erasmapp.news.domain.NewsItem
+import com.rampu.erasmapp.news.ui.components.NewsEditor
+import com.rampu.erasmapp.news.ui.components.NewsHeader
+import com.rampu.erasmapp.news.ui.components.NewsListItem
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
 
 @Composable
@@ -42,7 +44,7 @@ fun NewsScreen(
         }
 
         state.showEditor -> {
-            NewsEditor(state= state, onEvent = onEvent)
+            NewsEditor(state = state, onEvent = onEvent)
         }
 
         else -> {
@@ -96,7 +98,9 @@ fun NewsScreenPreview() {
                         topic = "topic 1",
                         isUrgent = false,
                         createdAt = System.currentTimeMillis(),
-                        authorId = "author"
+                        authorId = "author",
+                        authorLabel = "lkanjir",
+                        authorPhotoUrl = null,
                     )
                 )
             )

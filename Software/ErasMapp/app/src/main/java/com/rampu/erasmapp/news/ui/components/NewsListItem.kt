@@ -1,6 +1,5 @@
-package com.rampu.erasmapp.news.ui
+package com.rampu.erasmapp.news.ui.components
 
-import android.R
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,12 +18,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rampu.erasmapp.common.ui.components.UserAvatar
 import com.rampu.erasmapp.common.util.formatTime
 import com.rampu.erasmapp.news.domain.NewsItem
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
@@ -48,34 +50,44 @@ fun NewsListItem(item: NewsItem, onClick: () -> Unit, context: Context) {
                     .fillMaxHeight()
                     .background(markerColor)
             )
-            Column(
+            Row(
                 modifier = Modifier
                     .weight(1f)
                     .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = item.topic,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = formatTime(context, item.createdAt),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = item.body,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-
+                val authorLabel = item.authorLabel?.ifBlank { "Staff" } ?: "Staff"
+                UserAvatar(label = authorLabel, photoUrl = item.authorPhotoUrl, size = 36.dp)
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = item.title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            NewsBadge(text = getNewsTopicLabel(item.topic))
+                            NewsBadge(text = formatTime(context, item.createdAt))
+                        }
+                    }
+                    Text(
+                        text = item.body,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
@@ -93,7 +105,9 @@ fun NewsListItemPreview() {
                 topic = "test topic",
                 isUrgent = true,
                 createdAt = System.currentTimeMillis(),
-                authorId = "authorId"
+                authorId = "authorId",
+                authorLabel = "lkanjir",
+                authorPhotoUrl = null,
             ), onClick = {}, context = LocalContext.current
         )
     }

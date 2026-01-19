@@ -18,5 +18,7 @@ data class NewsUiState(
     val editorError: String? = null,
     val editCreatedAt: Long = 0L,
     val editAuthorId: String? = null,
+    val editAuthorLabel: String? = null,
+    val editAuthorPhotoUrl: String? = null,
     val showEditor: Boolean = false
 )

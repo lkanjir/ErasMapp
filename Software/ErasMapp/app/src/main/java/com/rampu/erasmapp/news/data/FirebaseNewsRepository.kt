@@ -1,5 +1,6 @@
 package com.rampu.erasmapp.news.data
 
+import com.google.android.libraries.places.api.model.kotlin.authorAttribution
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -7,6 +8,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.rampu.erasmapp.news.domain.INewsRepository
 import com.rampu.erasmapp.news.domain.NewsItem
 import com.rampu.erasmapp.news.domain.NewsSyncState
+import com.rampu.erasmapp.user.domain.IUserRepository
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -14,7 +16,8 @@ import kotlinx.coroutines.tasks.await
 
 class FirebaseNewsRepository(
     private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val userRepo: IUserRepository
 ) : INewsRepository {
     override fun observeNews(): Flow<NewsSyncState> = callbackFlow {
         var registration: ListenerRegistration? = null;
@@ -54,6 +57,9 @@ class FirebaseNewsRepository(
         val title = getString("title") ?: return null;
         val body = getString("body") ?: return null;
         val topic = getString("topic") ?: return null
+        val authorId = getString("authorId")
+        val authorLabel = getString("authorLabel")
+        val authorPhotoUrl = getString("authorPhotoUrl")
 
         return NewsItem(
             id = id,
@@ -62,7 +68,9 @@ class FirebaseNewsRepository(
             topic = topic,
             isUrgent = getBoolean("isUrgent") ?: false,
             createdAt = getLong("createdAt") ?: 0L,
-            authorId = getString("authorId")
+            authorId = authorId,
+            authorLabel = authorLabel,
+            authorPhotoUrl = authorPhotoUrl
         )
     }
 
@@ -70,11 +78,17 @@ class FirebaseNewsRepository(
 
     override suspend fun createNews(item: NewsItem): Result<Unit> = runCatching {
         val user = auth.currentUser ?: throw IllegalStateException("Missing user session.")
-        val author = item.authorId ?: user.uid;
-        val itemId = item.id.ifBlank { firestore.newsFS().document().id };
+        val authorId = item.authorId ?: user.uid
+        val authorLabel = item.authorLabel ?: userRepo.getCurrentUserLabel()
+        val authorPhotoUrl = item.authorPhotoUrl ?: user.photoUrl?.toString()
+        val itemId = item.id.ifBlank { firestore.newsFS().document().id }
 
-
-        val news = item.copy(id = itemId, authorId = author)
+        val news = item.copy(
+            id = itemId,
+            authorId = authorId,
+            authorLabel = authorLabel,
+            authorPhotoUrl = authorPhotoUrl
+        )
         firestore.newsFS().document(itemId).set(news.toFirestoreMap()).await()
     }
 
@@ -95,5 +109,7 @@ private fun NewsItem.toFirestoreMap() = mapOf(
     "topic" to topic,
     "isUrgent" to isUrgent,
     "createdAt" to createdAt,
-    "authorId" to authorId
+    "authorId" to authorId,
+    "authorLabel" to authorLabel,
+    "authorPhotoUrl" to authorPhotoUrl
 )
