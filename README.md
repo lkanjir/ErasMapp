@@ -1,5 +1,9 @@
 # ErasMapp
 
+## Important
+To run the app, you need to add your Google Maps API key to the file local.properties. The key should be added in this format: 
+GOOGLE_MAPS_API_KEY=xxxxxxxxxxxxxxxx
+
 ## Project team
 
 First and last name | E-mail address (FOI) | JMBAG | Github username | Seminar group
