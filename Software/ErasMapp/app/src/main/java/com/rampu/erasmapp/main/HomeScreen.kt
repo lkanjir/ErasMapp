@@ -1,9 +1,8 @@
 package com.rampu.erasmapp.main
 
 
-import android.text.style.LineHeightSpan
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,9 +18,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,21 +43,16 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
-    onSignOut: () -> Unit,
     onGoToSchedule: () -> Unit,
     onGoToEventCalendar: () -> Unit,
-    onGoToAdmin: () -> Unit,
     onGoToChannels: () -> Unit,
-    onGoToFOI : () -> Unit,
-    onGoToNavigation : () -> Unit,
-    onGoToNews: () -> Unit
+    onGoToFOI : () -> Unit
 ){
     val homeViewModel: HomeViewModel = koinViewModel()
     val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
 
     val repository: EventCalendarRepository = koinInject()
-    val adminFlow = remember(repository) { repository.observeAdminStatus() }
-    val isAdmin by adminFlow.collectAsState(initial = false)
+    remember(repository) { repository.observeAdminStatus() }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -109,8 +103,8 @@ fun HomeScreen(
 
         item { Spacer(modifier = Modifier.height(20.dp)) }
         item {
-            Button(
-                onClick = onGoToFOI) {
+            OutlinedButton(
+                onClick = onGoToFOI, modifier = Modifier.fillMaxWidth(0.9f).padding(10.dp)) {
                 Text("FOI Buildings")
             }
         }
@@ -124,7 +118,7 @@ private fun TodayScheduleCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(0.9f),
+        modifier = modifier.fillMaxWidth(0.9f).clickable(onClick = onGoToSchedule),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -169,16 +163,6 @@ private fun TodayScheduleCard(
                         TodayScheduleRow(event = event)
                         Spacer(modifier = Modifier.height(10.dp))
                     }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Button(onClick = onGoToSchedule) {
-                    Text("Go to Schedule")
                 }
             }
         }
@@ -228,7 +212,7 @@ private fun ChannelsPreviewCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(0.9f),
+        modifier = modifier.fillMaxWidth(0.9f).clickable(onClick = onGoToChannels),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -275,16 +259,6 @@ private fun ChannelsPreviewCard(
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Button(onClick = onGoToChannels) {
-                    Text("Go to Channels")
-                }
-            }
         }
     }
 }
@@ -322,7 +296,7 @@ private fun UpcomingEventsCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(0.9f),
+        modifier = modifier.fillMaxWidth(0.9f).clickable(onClick = onGoToEventCalendar),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -367,16 +341,6 @@ private fun UpcomingEventsCard(
                         UpcomingEventRow(event = event)
                         Spacer(modifier = Modifier.height(10.dp))
                     }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Button(onClick = onGoToEventCalendar) {
-                    Text("Go to Event Calendar")
                 }
             }
         }

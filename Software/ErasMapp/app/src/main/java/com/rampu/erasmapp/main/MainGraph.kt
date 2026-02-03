@@ -183,14 +183,10 @@ fun MainGraph(
             ) {
                 composable<HomeRoute> {
                     HomeScreen(
-                        onSignOut = onSignOut,
                         onGoToSchedule = { navController.navigate(ScheduleRoute) },
                         onGoToEventCalendar = { navController.navigate(EventCalendarRoute) },
-                        onGoToAdmin = { navController.navigate(AdminRoute) },
                         onGoToChannels = { navController.navigate(ChannelsRoute) },
-                        onGoToFOI = { navController.navigate(FOIRoute) },
-                        onGoToNavigation = { navController.navigate(NavigationRoute) },
-                        onGoToNews = { navController.navigate(NewsRoute) }
+                        onGoToFOI = { navController.navigate(FOIRoute) }
                     )
                 }
                 composable<ScheduleRoute> { backstackEntry ->

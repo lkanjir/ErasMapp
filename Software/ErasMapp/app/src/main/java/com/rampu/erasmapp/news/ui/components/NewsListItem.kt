@@ -3,7 +3,6 @@ package com.rampu.erasmapp.news.ui.components
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -36,6 +35,9 @@ fun NewsListItem(item: NewsItem, onClick: () -> Unit, context: Context) {
         if (item.isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surface.copy(
             alpha = 0f
         )
+    val authorLabel = item.authorLabel?.ifBlank { "Staff" } ?: "Staff"
+    val topicLabel = getNewsTopicLabel(item.topic)
+    val timeLabel = formatTime(context, item.createdAt)
 
     Card(
         modifier = Modifier
@@ -54,30 +56,32 @@ fun NewsListItem(item: NewsItem, onClick: () -> Unit, context: Context) {
                 modifier = Modifier
                     .weight(1f)
                     .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                val authorLabel = item.authorLabel?.ifBlank { "Staff" } ?: "Staff"
                 UserAvatar(label = authorLabel, photoUrl = item.authorPhotoUrl, size = 36.dp)
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                    modifier = Modifier.weight(1f)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
                             text = item.title,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
                         )
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            NewsBadge(text = getNewsTopicLabel(item.topic))
-                            NewsBadge(text = formatTime(context, item.createdAt))
+                        if (item.isUrgent) {
+                            Spacer(Modifier.width(8.dp))
+                            NewsBadge(
+                                text = "Urgent",
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                            )
                         }
                     }
                     Text(
@@ -87,6 +91,22 @@ fun NewsListItem(item: NewsItem, onClick: () -> Unit, context: Context) {
                         overflow = TextOverflow.Ellipsis,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    Spacer(Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "$authorLabel · $timeLabel",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        NewsBadge(text = topicLabel)
+                    }
                 }
             }
         }

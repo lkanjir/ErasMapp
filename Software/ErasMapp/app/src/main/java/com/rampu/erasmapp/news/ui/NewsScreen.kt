@@ -16,6 +16,7 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
@@ -94,6 +95,13 @@ fun NewsScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         if (filteredNews.isEmpty()) {
+                            val isTrulyEmpty = state.news.isEmpty()
+                            val title = if (isTrulyEmpty) "No news yet" else "No news for this topic"
+                            val subtitle = if (isTrulyEmpty) {
+                                "Share an update to keep students informed."
+                            } else {
+                                "Try a different topic or view all news."
+                            }
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -102,14 +110,22 @@ fun NewsScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = "No news yet",
+                                    text = title,
                                     style = MaterialTheme.typography.titleLarge
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
-                                    text = "Share an update to keep students informed.",
+                                    text = subtitle,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
+                                if (!isTrulyEmpty) {
+                                    Spacer(Modifier.height(16.dp))
+                                    TextButton(
+                                        onClick = { onEvent(NewsEvent.FilterChanged(null)) }
+                                    ) {
+                                        Text("Show all")
+                                    }
+                                }
                                 if (state.isAdmin) {
                                     Spacer(Modifier.height(16.dp))
                                     Button(
