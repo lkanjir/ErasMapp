@@ -6,6 +6,7 @@ import com.google.android.libraries.places.api.Places
 import com.rampu.erasmapp.auth.authModule
 import com.rampu.erasmapp.channels.channelsModule
 import com.rampu.erasmapp.eventCalendar.eventCalendarModule
+import com.rampu.erasmapp.main.homeModule
 import com.rampu.erasmapp.news.newsModule
 import com.rampu.erasmapp.schedule.scheduleModule
 import com.rampu.erasmapp.session.sessionModule
@@ -20,8 +21,9 @@ class App : Application(){
         try {
             val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
             val apiKey = appInfo.metaData.getString("com.google.android.geo.API_KEY")
-            if (apiKey != null && !Places.isInitialized()) {
-                Places.initialize(applicationContext, apiKey)
+            val key = "AIzaSyDpUS87wnYRaguLWJJ-D-kMzfawrA3HTbk";
+            if (key != null && !Places.isInitialized()) {
+                Places.initialize(applicationContext, key)
             }
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
@@ -34,6 +36,7 @@ class App : Application(){
                 sessionModule,
                 userModule,
                 scheduleModule,
+                homeModule,
                 eventCalendarModule,
                 channelsModule,
                 newsModule
