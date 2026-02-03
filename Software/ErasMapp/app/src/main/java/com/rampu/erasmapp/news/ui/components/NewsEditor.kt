@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -21,6 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rampu.erasmapp.channels.ui.channels.ChannelIconPicker
+import com.rampu.erasmapp.common.ui.components.DialogConfirmButton
+import com.rampu.erasmapp.common.ui.components.DialogDismissButton
 import com.rampu.erasmapp.common.ui.components.ErrorMessage
 import com.rampu.erasmapp.common.ui.components.LabeledInputField
 import com.rampu.erasmapp.common.ui.components.LoadingIndicator
@@ -37,15 +38,17 @@ fun NewsEditor(state: NewsUiState, onEvent: (NewsEvent) -> Unit) {
     AlertDialog(
         onDismissRequest = { onEvent(NewsEvent.DismissEditor) },
         confirmButton = {
-            Button(onClick = { onEvent(NewsEvent.SaveNews) }, enabled = !state.isSaving) {
-                if (state.isSaving) {
-                    LoadingIndicator()
-                } else Text("Save")
-            }
+            DialogConfirmButton(
+                text = if (state.isSaving) "Saving..." else "Save",
+                onClick = { onEvent(NewsEvent.SaveNews) },
+                enabled = !state.isSaving
+            )
         }, dismissButton = {
-            Button(onClick = { onEvent(NewsEvent.DismissEditor) }, enabled = !state.isSaving) {
-                Text("Cancel")
-            }
+            DialogDismissButton(
+                text = "Cancel",
+                onClick = { onEvent(NewsEvent.DismissEditor) },
+                enabled = !state.isSaving
+            )
         },
         title = { Text(if (isEdit) "Edit news" else "Add news") },
         text = {

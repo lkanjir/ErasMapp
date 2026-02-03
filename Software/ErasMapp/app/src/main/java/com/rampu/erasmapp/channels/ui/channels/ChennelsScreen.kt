@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rampu.erasmapp.channels.domian.Channel
+import com.rampu.erasmapp.common.ui.components.DialogConfirmButton
+import com.rampu.erasmapp.common.ui.components.DialogDismissButton
 import com.rampu.erasmapp.common.ui.components.ErrorMessage
 import com.rampu.erasmapp.common.ui.components.LabeledInputField
 import com.rampu.erasmapp.common.ui.components.LoadingIndicator
@@ -39,28 +41,31 @@ fun ChannelsScreen(
     onEvent: (event: ChannelEvent) -> Unit,
     state: ChannelUiState
 ) {
+    val showTitleError = state.newTitle.isBlank()
+    val showDescriptionError = state.newDescription.isBlank()
+    val canSubmit = !showTitleError && !showDescriptionError
+
     if (state.showCreateDialog && state.isAdmin) {
         AlertDialog(
             onDismissRequest = {
                 onEvent(ChannelEvent.ShowCreateDialog(false))
             },
             confirmButton = {
-                Button(
+                DialogConfirmButton(
+                    text = "Save",
                     onClick = {
                         onEvent(ChannelEvent.CreateChannel)
-                    }
-                ) {
-                    Text("Save")
-                }
+                    },
+                    enabled = canSubmit
+                )
             },
             dismissButton = {
-                Button(
+                DialogDismissButton(
+                    text = "Cancel",
                     onClick = {
                         onEvent(ChannelEvent.ShowCreateDialog(false))
                     }
-                ) {
-                    Text("Cancel")
-                }
+                )
             },
             text = {
                 Column(
@@ -71,21 +76,24 @@ fun ChannelsScreen(
                         onValueChange = {
                             onEvent(ChannelEvent.TitleChanged(it))
                         },
-                        label = "Title"
-                    )
-                    LabeledInputField(
-                        value = state.newTopic,
-                        onValueChange = {
-                            onEvent(ChannelEvent.TopicChanged(it))
-                        },
-                        label = "Topic"
+                        label = "Title",
+                        placeholder = "e.g., Housing tips",
+                        isError = showTitleError,
+                        supportingText = if (showTitleError) {
+                            { Text("Title is required.") }
+                        } else null
                     )
                     LabeledInputField(
                         value = state.newDescription,
                         onValueChange = {
                             onEvent(ChannelEvent.DescriptionChanged(it))
                         },
-                        label = "Description"
+                        label = "Description",
+                        placeholder = "eg. Dorms, ...",
+                        isError = showDescriptionError,
+                        supportingText = if (showDescriptionError) {
+                            { Text("Description is required.") }
+                        } else null
                     )
                     Column {
                         Text(

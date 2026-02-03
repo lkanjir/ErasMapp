@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -35,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
 import com.rampu.erasmapp.channels.domian.QuestionStatus
+import com.rampu.erasmapp.common.ui.components.DialogConfirmButton
+import com.rampu.erasmapp.common.ui.components.DialogDismissButton
 import com.rampu.erasmapp.common.ui.components.ErrorMessage
 import com.rampu.erasmapp.common.ui.components.LabeledInputField
 import com.rampu.erasmapp.common.ui.components.LoadingIndicator
@@ -52,6 +53,9 @@ fun QuestionsScreen(
     onEvent: (event: QuestionsEvent) -> Unit,
     state: QuestionsUiState
 ) {
+    val showTitleError = state.newTitle.isBlank()
+    val showBodyError = state.newBody.isBlank()
+
     SideEffect {
         setTopBar(
             topBarOwnerId,
@@ -78,7 +82,7 @@ fun QuestionsScreen(
         }
 
         state.showCreateDialog -> {
-            val canSubmit = state.newTitle.isNotBlank() && state.newBody.isNotBlank() && !state.isSaving
+            val canSubmit = !showTitleError && !showBodyError && !state.isSaving
             AlertDialog(
                 onDismissRequest = {
                     onEvent(QuestionsEvent.ShowCreateDialog(false))
@@ -87,23 +91,17 @@ fun QuestionsScreen(
                     Text(text = "New question", style = MaterialTheme.typography.titleLarge)
                 },
                 confirmButton = {
-                    Button(
-                        onClick = {
-                            onEvent(QuestionsEvent.CreateQuestion)
-                        },
+                    DialogConfirmButton(
+                        text = "Post",
+                        onClick = { onEvent(QuestionsEvent.CreateQuestion) },
                         enabled = canSubmit
-                    ) {
-                        Text("Post")
-                    }
+                    )
                 },
                 dismissButton = {
-                    Button(
-                        onClick = {
-                            onEvent(QuestionsEvent.ShowCreateDialog(false))
-                        }
-                    ) {
-                        Text("Cancel")
-                    }
+                    DialogDismissButton(
+                        text = "Cancel",
+                        onClick = { onEvent(QuestionsEvent.ShowCreateDialog(false)) }
+                    )
                 },
                 text = {
                     Column(
@@ -120,10 +118,11 @@ fun QuestionsScreen(
                                 onEvent(QuestionsEvent.TitleChanged(it))
                             },
                             label = "Title",
-                            placeholder = "e.g., How do I apply for Erasmus housing?",
+                            placeholder = "e.g., How do I ...",
                             supportingText = {
-                                Text("Keep it short and specific.")
+                                Text(if (showTitleError) "Title is required." else "Keep it short and specific.")
                             },
+                            isError = showTitleError,
                             enabled = !state.isSaving
                         )
                         Column {
@@ -138,7 +137,7 @@ fun QuestionsScreen(
                                 onValueChange = { onEvent(QuestionsEvent.BodyChanged(it)) },
                                 placeholder = { Text("Ask a clear, specific question") },
                                 shape = RoundedCornerShape(5.dp),
-                                isError = false,
+                                isError = showBodyError,
                                 colors = TextFieldDefaults.colors(
                                     focusedIndicatorColor = Color.Transparent,
                                     unfocusedIndicatorColor = Color.Transparent,
@@ -150,9 +149,9 @@ fun QuestionsScreen(
                             )
                             Spacer(Modifier.height(6.dp))
                             Text(
-                                text = "Add context and what you already tried.",
+                                text = if (showBodyError) "Body is required." else "Add context and what you already tried.",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = if (showBodyError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
