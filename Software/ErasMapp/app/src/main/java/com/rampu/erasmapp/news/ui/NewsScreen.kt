@@ -11,8 +11,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
@@ -44,17 +47,7 @@ fun NewsScreen(
         setTopBar(
             topBarOwnerId,
             TopBarState(
-                title = "News",
-                actions = {
-                    if (state.isAdmin && !state.showEditor) {
-                        IconButton(
-                            onClick = { onEvent(NewsEvent.ShowEditor(null)) },
-                            enabled = !state.isSaving
-                        ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Add news")
-                        }
-                    }
-                }
+                title = "News"
             )
         )
     }
@@ -83,30 +76,77 @@ fun NewsScreen(
             val filteredNews = if (state.selectedTopic.isNullOrBlank()) state.news
             else state.news.filter { it.topic == state.selectedTopic }
 
-
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                state.actionError?.let { ErrorMessage(message = it) }
-                NewsCategoryFilter(selectedTopic = state.selectedTopic, onSelected = {onEvent(
-                    NewsEvent.FilterChanged(it))})
-                Spacer(Modifier.height(10.dp))
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filteredNews, key = { it.id }) { item ->
-                        NewsListItem(
-                            item = item,
-                            context = context,
-                            onClick = { onOpenNews(item.id) }
-                        )
+                Column(modifier = Modifier.fillMaxSize()) {
+                    state.actionError?.let { ErrorMessage(message = it) }
+                    NewsCategoryFilter(
+                        selectedTopic = state.selectedTopic,
+                        onSelected = { onEvent(NewsEvent.FilterChanged(it)) }
+                    )
+                    Spacer(Modifier.height(10.dp))
 
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (filteredNews.isEmpty()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(24.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "No news yet",
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    text = "Share an update to keep students informed.",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                if (state.isAdmin) {
+                                    Spacer(Modifier.height(16.dp))
+                                    Button(
+                                        onClick = { onEvent(NewsEvent.ShowEditor(null)) },
+                                        enabled = !state.isSaving
+                                    ) {
+                                        Text("Create news")
+                                    }
+                                }
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                items(filteredNews, key = { it.id }) { item ->
+                                    NewsListItem(
+                                        item = item,
+                                        context = context,
+                                        onClick = { onOpenNews(item.id) }
+                                    )
+
+                                }
+                            }
+                        }
                     }
                 }
 
+                if (state.isAdmin) {
+                    ExtendedFloatingActionButton(
+                        onClick = { onEvent(NewsEvent.ShowEditor(null)) },
+                        text = { Text("Add news") },
+                        icon = { Icon(Icons.Filled.Add, contentDescription = "Create news") },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd).padding(bottom = 16.dp)
+                    )
+                }
             }
         }
     }
