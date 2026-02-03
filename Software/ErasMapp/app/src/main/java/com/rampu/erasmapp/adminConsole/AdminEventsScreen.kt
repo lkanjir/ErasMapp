@@ -1,5 +1,6 @@
 package com.rampu.erasmapp.adminConsole
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +14,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -33,12 +37,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rampu.erasmapp.eventCalendar.domain.CalendarEvent
 import com.rampu.erasmapp.eventCalendar.ui.EventCalendarViewModel
 import org.koin.androidx.compose.koinViewModel
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -204,11 +210,10 @@ fun AdminEventsScreen(
                         label = { Text("Title") },
                         singleLine = true
                     )
-                    OutlinedTextField(
+                    DatePickerField(
                         value = uiState.newDateText,
-                        onValueChange = viewModel::updateNewDateText,
-                        label = { Text("Date (YYYY-MM-DD)") },
-                        singleLine = true
+                        label = "Date",
+                        onDateSelected = viewModel::updateNewDateText
                     )
                     OutlinedTextField(
                         value = uiState.newTime,
@@ -265,11 +270,10 @@ fun AdminEventsScreen(
                         label = { Text("Title") },
                         singleLine = true
                     )
-                    OutlinedTextField(
+                    DatePickerField(
                         value = uiState.editDateText,
-                        onValueChange = viewModel::updateEditDateText,
-                        label = { Text("Date (YYYY-MM-DD)") },
-                        singleLine = true
+                        label = "Date",
+                        onDateSelected = viewModel::updateEditDateText
                     )
                     OutlinedTextField(
                         value = uiState.editTime,
@@ -318,6 +322,56 @@ fun AdminEventsScreen(
                     Text("Cancel")
                 }
             }
+        )
+    }
+}
+
+@Composable
+private fun DatePickerField(
+    value: String,
+    label: String,
+    onDateSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val initialDate = remember(value) {
+        runCatching { LocalDate.parse(value) }.getOrElse { LocalDate.now() }
+    }
+    val openPicker = {
+        DatePickerDialog(
+            context,
+            { _, year, month, day ->
+                val date = LocalDate.of(year, month + 1, day)
+                onDateSelected(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+            },
+            initialDate.year,
+            initialDate.monthValue - 1,
+            initialDate.dayOfMonth
+        ).show()
+    }
+
+    Box(modifier = modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {},
+            label = { Text(label) },
+            singleLine = true,
+            readOnly = true,
+            trailingIcon = {
+                IconButton(onClick = openPicker) {
+                    Icon(Icons.Filled.DateRange, contentDescription = "Pick date")
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) { openPicker() }
         )
     }
 }

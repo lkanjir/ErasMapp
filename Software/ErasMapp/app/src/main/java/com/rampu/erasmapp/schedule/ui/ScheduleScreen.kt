@@ -1,7 +1,10 @@
 package com.rampu.erasmapp.schedule.ui
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +25,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -35,6 +39,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -51,10 +56,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.rampu.erasmapp.main.TopBarState
 import org.koin.androidx.compose.koinViewModel
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -417,23 +425,20 @@ fun ScheduleScreen(
                         label = { Text("Title") },
                         singleLine = true
                     )
-                    OutlinedTextField(
+                    TimePickerField(
                         value = uiState.newStart,
-                        onValueChange = viewModel::updateNewStart,
-                        label = { Text("Start Time") },
-                        singleLine = true
+                        label = "Start Time",
+                        onTimeSelected = viewModel::updateNewStart
                     )
-                    OutlinedTextField(
+                    TimePickerField(
                         value = uiState.newEnd,
-                        onValueChange = viewModel::updateNewEnd,
-                        label = { Text("End Time") },
-                        singleLine = true
+                        label = "End Time",
+                        onTimeSelected = viewModel::updateNewEnd
                     )
-                    OutlinedTextField(
+                    DatePickerField(
                         value = uiState.newDateText,
-                        onValueChange = { viewModel.updateNewDate(it) },
-                        label = { Text("Date (YYYY-MM-DD)") },
-                        singleLine = true
+                        label = "Date",
+                        onDateSelected = viewModel::updateNewDate
                     )
                     OutlinedTextField(
                         value = uiState.newLocation,
@@ -555,20 +560,20 @@ fun ScheduleScreen(
                         onValueChange = viewModel::updateEditTitle,
                         label = { Text("Title") }
                     )
-                    OutlinedTextField(
+                    DatePickerField(
                         value = uiState.editDateText,
-                        onValueChange = viewModel::updateEditDate,
-                        label = { Text("Date (YYYY-MM-DD)") }
+                        label = "Date",
+                        onDateSelected = viewModel::updateEditDate
                     )
-                    OutlinedTextField(
+                    TimePickerField(
                         value = uiState.editStart,
-                        onValueChange = viewModel::updateEditStart,
-                        label = { Text("Start Time") }
+                        label = "Start Time",
+                        onTimeSelected = viewModel::updateEditStart
                     )
-                    OutlinedTextField(
+                    TimePickerField(
                         value = uiState.editEnd,
-                        onValueChange = viewModel::updateEditEnd,
-                        label = { Text("End Time") }
+                        label = "End Time",
+                        onTimeSelected = viewModel::updateEditEnd
                     )
                     OutlinedTextField(
                         value = uiState.editLocation,
@@ -646,4 +651,110 @@ fun ScheduleScreen(
     }
 }
 
+@Composable
+private fun DatePickerField(
+    value: String,
+    label: String,
+    onDateSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val initialDate = remember(value) {
+        runCatching { LocalDate.parse(value) }.getOrElse { LocalDate.now() }
+    }
+    val openPicker = {
+        DatePickerDialog(
+            context,
+            { _, year, month, day ->
+                val date = LocalDate.of(year, month + 1, day)
+                onDateSelected(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+            },
+            initialDate.year,
+            initialDate.monthValue - 1,
+            initialDate.dayOfMonth
+        ).show()
+    }
+
+    Box(modifier = modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {},
+            label = { Text(label) },
+            singleLine = true,
+            readOnly = true,
+            trailingIcon = {
+                IconButton(onClick = openPicker) {
+                    Icon(Icons.Filled.DateRange, contentDescription = "Pick date")
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) { openPicker() }
+        )
+    }
+}
+
+@Composable
+private fun TimePickerField(
+    value: String,
+    label: String,
+    onTimeSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val initialTime = remember(value) { parseTime(value) ?: LocalTime.now() }
+    val openPicker = {
+        TimePickerDialog(
+            context,
+            { _, hour, minute ->
+                onTimeSelected(String.format(Locale.getDefault(), "%02d:%02d", hour, minute))
+            },
+            initialTime.hour,
+            initialTime.minute,
+            true
+        ).show()
+    }
+
+    Box(modifier = modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {},
+            label = { Text(label) },
+            singleLine = true,
+            readOnly = true,
+            trailingIcon = null,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) { openPicker() }
+        )
+    }
+}
+
+private fun parseTime(value: String): LocalTime? {
+    val trimmed = value.trim()
+    if (trimmed.isEmpty() || trimmed == "-") return null
+
+    val patterns = listOf("H:mm", "HH:mm")
+    for (pattern in patterns) {
+        val parsed = runCatching {
+            LocalTime.parse(trimmed, DateTimeFormatter.ofPattern(pattern))
+        }.getOrNull()
+        if (parsed != null) return parsed
+    }
+    return null
+}
 
