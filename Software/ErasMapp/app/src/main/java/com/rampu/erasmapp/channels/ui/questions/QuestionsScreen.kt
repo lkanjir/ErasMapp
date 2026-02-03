@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
@@ -32,6 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.font.FontWeight
 import com.rampu.erasmapp.channels.domian.QuestionStatus
 import com.rampu.erasmapp.common.ui.components.DialogConfirmButton
@@ -180,13 +183,66 @@ fun QuestionsScreen(
                         selected = state.filter,
                         onSelected = { onEvent(QuestionsEvent.FilterChanged(it)) })
                     Spacer(Modifier.height(10.dp))
-                    LazyColumn(
-                        modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(bottom = 72.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        items(state.questions, key = { it.id }) { item ->
-                            QuestionItem(item = item, onClick = { onOpenQuestion(item.id) })
+                    if (state.questions.isEmpty()) {
+                        val isTrulyEmpty = state.totalCount == 0
+                        val title = when {
+                            isTrulyEmpty -> "No questions yet"
+                            state.filter == QuestionFilter.OPEN -> "No open questions"
+                            else -> "No answered questions"
+                        }
+                        val subtitle = when {
+                            isTrulyEmpty -> "Be the first to ask a question in this channel."
+                            state.filter == QuestionFilter.OPEN ->
+                                "All questions are answered or locked."
+
+                            else -> "Check back later or view open questions."
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = subtitle,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(16.dp))
+                            if (!isTrulyEmpty) {
+                                val targetFilter =
+                                    if (state.filter == QuestionFilter.OPEN) QuestionFilter.ANSWERED else QuestionFilter.OPEN
+                                val buttonLabel =
+                                    if (state.filter == QuestionFilter.OPEN) "View answered questions" else "View open questions"
+                                OutlinedButton(
+                                    onClick = { onEvent(QuestionsEvent.FilterChanged(targetFilter)) }
+                                ) {
+                                    Text(buttonLabel)
+                                }
+                                Spacer(Modifier.height(12.dp))
+                            }
+                            TextButton(
+                                onClick = { onEvent(QuestionsEvent.ShowCreateDialog(show = true)) }
+                            ) {
+                                Text("Ask a question")
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(bottom = 88.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(state.questions, key = { it.id }) { item ->
+                                QuestionItem(item = item, onClick = { onOpenQuestion(item.id) })
+                            }
                         }
                     }
                 }

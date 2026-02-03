@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rampu.erasmapp.channels.domian.IChannelRepository
 import com.rampu.erasmapp.channels.domian.QuestionMetaSyncState
+import com.rampu.erasmapp.channels.domian.QuestionStatus
 import com.rampu.erasmapp.channels.domian.QuestionsSyncState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,7 @@ class QuestionsViewModel(
     private val repo: IChannelRepository
 ) : ViewModel() {
     private val filterState = MutableStateFlow(QuestionFilter.OPEN)
+    private var didAutoSwitchFilter = false
     var uiState =
         MutableStateFlow(
             QuestionsUiState(
@@ -52,6 +54,9 @@ class QuestionsViewModel(
                         it.copy(
                             isLoading = true,
                             errorMsg = null,
+                            totalCount = 0,
+                            openCount = 0,
+                            answeredCount = 0,
                             filter = filter
                         )
                     }
@@ -64,8 +69,23 @@ class QuestionsViewModel(
 
                         val userId = repo.currentUserId()
 
+                        val totalCount = questionState.questions.size
+                        val openCount = questionState.questions.count { it.status == QuestionStatus.OPEN }
+                        val answeredCount = questionState.questions.count { it.status != QuestionStatus.OPEN }
+                        val shouldAutoSwitch =
+                            !didAutoSwitchFilter &&
+                                filter == QuestionFilter.OPEN &&
+                                openCount == 0 &&
+                                answeredCount > 0
+                        val effectiveFilter = if (shouldAutoSwitch) QuestionFilter.ANSWERED else filter
+
+                        if (shouldAutoSwitch) {
+                            didAutoSwitchFilter = true
+                            filterState.value = QuestionFilter.ANSWERED
+                        }
+
                         val filteredQuestions = questionState.questions.filter { q ->
-                            filter.matches(q.status)
+                            effectiveFilter.matches(q.status)
                         }
                         Log.d("UI_STATE_ITEMS", "Before map: ${filteredQuestions.count()}")
 
@@ -95,7 +115,10 @@ class QuestionsViewModel(
                                 isLoading = false,
                                 errorMsg = null,
                                 isSignedOut = false,
-                                filter = filter
+                                totalCount = totalCount,
+                                openCount = openCount,
+                                answeredCount = answeredCount,
+                                filter = effectiveFilter
                             )
                         }
 
@@ -106,6 +129,9 @@ class QuestionsViewModel(
                         it.copy(
                             isLoading = false,
                             errorMsg = questionState.message,
+                            totalCount = 0,
+                            openCount = 0,
+                            answeredCount = 0,
                             filter = filter
                         )
                     }
@@ -116,6 +142,9 @@ class QuestionsViewModel(
                             isLoading = false,
                             errorMsg = "You need to sign in to view messages",
                             isSignedOut = true,
+                            totalCount = 0,
+                            openCount = 0,
+                            answeredCount = 0,
                             filter = filter
                         )
                     }
