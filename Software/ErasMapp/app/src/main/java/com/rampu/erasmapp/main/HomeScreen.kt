@@ -110,46 +110,11 @@ fun HomeScreen(
         item { Spacer(modifier = Modifier.height(20.dp)) }
         item {
             Button(
-                onClick = onSignOut
-            ){
-                Text("Sign out")
-            }
-        }
-
-        item { Spacer(modifier = Modifier.height(20.dp)) }
-        item {
-            Button(
-                onClick = onGoToNavigation) {
-                Text("Go to Navigation")
-            }
-        }
-
-        item { Spacer(modifier = Modifier.height(20.dp)) }
-        item {
-            Button(
                 onClick = onGoToFOI) {
                 Text("FOI Buildings")
             }
         }
-
-        if (isAdmin) {
-            item { Spacer(modifier = Modifier.height(20.dp)) }
-            item {
-                Button(onClick = onGoToAdmin) {
-                    Text("Admin console")
-                }
-            }
-        }
-
-        item { Spacer(modifier = Modifier.height(20.dp)) }
-        item{
-            Button(onClick = onGoToNews) {
-                Text("Go  to news")
-            }
-        }
-
     }
-
 }
 
 @Composable
