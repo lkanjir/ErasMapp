@@ -10,3 +10,11 @@ data class Building(
     val latitude: Double,
     val longitude: Double
 )
+
+public data class Room(
+    val name: String
+)
+public data class Floor(
+    val title: String,
+    val rooms: List<Room>
+)
