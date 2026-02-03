@@ -36,9 +36,11 @@ import com.rampu.erasmapp.channels.ui.channels.channelIconForKey
 import com.rampu.erasmapp.common.ui.components.LoadingIndicator
 import com.rampu.erasmapp.common.ui.components.UserAvatar
 import com.rampu.erasmapp.eventCalendar.data.EventCalendarRepository
+import com.rampu.erasmapp.eventCalendar.domain.CalendarEvent
 import com.rampu.erasmapp.schedule.domain.ScheduleEvent
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
@@ -65,6 +67,7 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         item {
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Welcome to ErasMapp!",
                 fontSize = 42.sp,
@@ -89,6 +92,15 @@ fun HomeScreen(
         item { Spacer(modifier = Modifier.height(20.dp)) }
 
         item {
+            UpcomingEventsCard(
+                state = homeState,
+                onGoToEventCalendar = onGoToEventCalendar
+            )
+        }
+
+        item { Spacer(modifier = Modifier.height(20.dp)) }
+
+        item {
             ChannelsPreviewCard(
                 state = homeState,
                 onGoToChannels = onGoToChannels
@@ -103,12 +115,7 @@ fun HomeScreen(
                 Text("Sign out")
             }
         }
-        item { Spacer(modifier = Modifier.height(20.dp)) }
-        item {
-            Button(onClick = onGoToEventCalendar) {
-                Text("Go to Event Calendar")
-            }
-        }
+
         item { Spacer(modifier = Modifier.height(20.dp)) }
         item {
             Button(
@@ -339,6 +346,98 @@ private fun ChannelRow(channel: Channel) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun UpcomingEventsCard(
+    state: HomeUiState,
+    onGoToEventCalendar: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(0.9f),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Upcoming events",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            when {
+                state.isEventCalendarLoading -> {
+                    LoadingIndicator()
+                }
+
+                state.isEventCalendarSignedOut -> {
+                    Text(
+                        text = "Sign in to see events.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                !state.eventCalendarErrorMessage.isNullOrBlank() -> {
+                    Text(
+                        text = state.eventCalendarErrorMessage ?: "Unable to load events.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
+                state.upcomingEvents.isEmpty() -> {
+                    Text(
+                        text = "No upcoming events.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                else -> {
+                    state.upcomingEvents.take(3).forEach { event ->
+                        UpcomingEventRow(event = event)
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(onClick = onGoToEventCalendar) {
+                    Text("Go to Event Calendar")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun UpcomingEventRow(event: CalendarEvent) {
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = event.title,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "${event.date.format(dateFormatter)} at ${event.time}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (event.location.isNotBlank() && event.location != "-") {
+            Text(
+                text = event.location,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

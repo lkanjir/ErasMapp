@@ -3,7 +3,9 @@ package com.rampu.erasmapp.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rampu.erasmapp.channels.domian.Channel
+import com.rampu.erasmapp.eventCalendar.domain.CalendarEvent
 import com.rampu.erasmapp.main.data.HomeChannelsState
+import com.rampu.erasmapp.main.data.HomeEventCalendarState
 import com.rampu.erasmapp.main.data.HomeRepository
 import com.rampu.erasmapp.main.data.HomeScheduleState
 import com.rampu.erasmapp.schedule.domain.ScheduleEvent
@@ -22,6 +24,10 @@ data class HomeUiState(
     val channelsErrorMessage: String? = null,
     val channels: List<Channel> = emptyList(),
     val isChannelsSignedOut: Boolean = false,
+    val isEventCalendarLoading: Boolean = true,
+    val eventCalendarErrorMessage: String? = null,
+    val upcomingEvents: List<CalendarEvent> = emptyList(),
+    val isEventCalendarSignedOut: Boolean = false,
 )
 
 class HomeViewModel(
@@ -31,10 +37,12 @@ class HomeViewModel(
     val uiState = _uiState.asStateFlow()
     private var observeJob: Job? = null
     private var observeChannelsJob: Job? = null
+    private var observeEventCalendarJob: Job? = null
 
     init {
         observeTodaySchedule()
         observeChannels()
+        observeUpcomingEvents()
     }
 
     private fun observeTodaySchedule() {
@@ -118,6 +126,50 @@ class HomeViewModel(
                             channelsErrorMessage = "Sign in to view channels.",
                             isChannelsSignedOut = true,
                             channels = emptyList()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeUpcomingEvents() {
+        observeEventCalendarJob?.cancel()
+        observeEventCalendarJob = viewModelScope.launch {
+            repository.observeUpcomingEvents().collect { state ->
+                when (state) {
+                    HomeEventCalendarState.Loading -> _uiState.update {
+                        it.copy(
+                            isEventCalendarLoading = true,
+                            eventCalendarErrorMessage = null,
+                            isEventCalendarSignedOut = false
+                        )
+                    }
+
+                    is HomeEventCalendarState.Success -> _uiState.update {
+                        it.copy(
+                            isEventCalendarLoading = false,
+                            eventCalendarErrorMessage = null,
+                            isEventCalendarSignedOut = false,
+                            upcomingEvents = state.events
+                        )
+                    }
+
+                    is HomeEventCalendarState.Error -> _uiState.update {
+                        it.copy(
+                            isEventCalendarLoading = false,
+                            eventCalendarErrorMessage = state.message,
+                            isEventCalendarSignedOut = false,
+                            upcomingEvents = emptyList()
+                        )
+                    }
+
+                    HomeEventCalendarState.SignOut -> _uiState.update {
+                        it.copy(
+                            isEventCalendarLoading = false,
+                            eventCalendarErrorMessage = "Sign in to view events.",
+                            isEventCalendarSignedOut = true,
+                            upcomingEvents = emptyList()
                         )
                     }
                 }
