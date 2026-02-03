@@ -9,7 +9,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -17,21 +23,46 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rampu.erasmapp.common.ui.components.ErrorMessage
 import com.rampu.erasmapp.common.ui.components.LoadingIndicator
+import com.rampu.erasmapp.main.TopBarState
 import com.rampu.erasmapp.news.domain.NewsItem
 import com.rampu.erasmapp.news.ui.components.NewsCategoryFilter
 import com.rampu.erasmapp.news.ui.components.NewsEditor
-import com.rampu.erasmapp.news.ui.components.NewsHeader
 import com.rampu.erasmapp.news.ui.components.NewsListItem
 import com.rampu.erasmapp.ui.theme.ErasMappTheme
 
 @Composable
 fun NewsScreen(
-    onBack: () -> Unit,
+    setTopBar: (String, TopBarState?) -> Unit,
+    topBarOwnerId: String,
     onEvent: (event: NewsEvent) -> Unit,
     onOpenNews: (newsId: String) -> Unit,
     state: NewsUiState,
 ) {
     val context = LocalContext.current
+
+    SideEffect {
+        setTopBar(
+            topBarOwnerId,
+            TopBarState(
+                title = "News",
+                actions = {
+                    if (state.isAdmin && !state.showEditor) {
+                        IconButton(
+                            onClick = { onEvent(NewsEvent.ShowEditor(null)) },
+                            enabled = !state.isSaving
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "Add news")
+                        }
+                    }
+                }
+            )
+        )
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            setTopBar(topBarOwnerId, null)
+        }
+    }
 
     when {
         state.isLoading -> {
@@ -58,12 +89,6 @@ fun NewsScreen(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                NewsHeader(
-                    showAdd = state.isAdmin,
-                    addEnabled = !state.isSaving,
-                    onAdd = { onEvent(NewsEvent.ShowEditor(null)) }
-                )
-                Spacer(Modifier.height(10.dp))
                 state.actionError?.let { ErrorMessage(message = it) }
                 NewsCategoryFilter(selectedTopic = state.selectedTopic, onSelected = {onEvent(
                     NewsEvent.FilterChanged(it))})
@@ -92,7 +117,8 @@ fun NewsScreen(
 fun NewsScreenPreview() {
     ErasMappTheme {
         NewsScreen(
-            onBack = { },
+            setTopBar = {_, _ -> },
+            topBarOwnerId = "preview",
             onEvent = { },
             onOpenNews = { },
             state = NewsUiState(

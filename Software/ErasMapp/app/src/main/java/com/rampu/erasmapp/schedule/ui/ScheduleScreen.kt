@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,7 +61,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
-    setTopBar: (TopBarState?) -> Unit,
+    setTopBar: (String, TopBarState?) -> Unit,
+    topBarOwnerId: String,
     onBack: (() -> Unit)? = null
 ) {
     val viewModel: ScheduleViewModel = koinViewModel()
@@ -84,8 +86,9 @@ fun ScheduleScreen(
         "${currentWeekStart.format(weekFormatterWithYear)}-${weekEnd.format(weekFormatterWithYear)}"
     }
 
-    DisposableEffect(isWeeklyView, onBack) {
+    SideEffect {
         setTopBar(
+            topBarOwnerId,
             TopBarState(
                 title = "Schedule",
                 onNavigateUp = onBack,
@@ -96,8 +99,11 @@ fun ScheduleScreen(
                 }
             )
         )
+    }
+
+    DisposableEffect(Unit) {
         onDispose {
-            setTopBar(null)
+            setTopBar(topBarOwnerId, null)
         }
     }
 

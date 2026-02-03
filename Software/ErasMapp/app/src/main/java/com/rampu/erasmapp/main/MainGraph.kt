@@ -68,7 +68,18 @@ fun MainGraph(
     val currentRoute = navBackStackEntry?.destination?.route
 
     var topBarState by remember { mutableStateOf<TopBarState?>(null) }
-    val setTopBar: (TopBarState?) -> Unit = { topBarState = it }
+    var topBarOwnerId by remember { mutableStateOf<String?>(null) }
+    val setTopBar: (String, TopBarState?) -> Unit = { ownerId, state ->
+        if (state == null) {
+            if (topBarOwnerId == ownerId) {
+                topBarOwnerId = null
+                topBarState = null
+            }
+        } else {
+            topBarOwnerId = ownerId
+            topBarState = state
+        }
+    }
 
     val topLevelDestinations = listOf(
         TopLevelDestination("Home", Icons.Filled.Home, HomeRoute),
@@ -146,9 +157,10 @@ fun MainGraph(
                         onGoToNews = { navController.navigate(NewsRoute) }
                     )
                 }
-                composable<ScheduleRoute> {
+                composable<ScheduleRoute> { backstackEntry ->
                     ScheduleScreen(
-                        setTopBar = setTopBar
+                        setTopBar = setTopBar,
+                        topBarOwnerId = backstackEntry.id.toString()
                     )
                 }
                 composable<EventCalendarRoute> {
@@ -258,12 +270,13 @@ fun MainGraph(
                     )
                 }
 
-                composable<NewsRoute> {
+                composable<NewsRoute> { backstackEntry ->
                     val vm: NewsViewModel = koinViewModel()
                     val state = vm.uiState.collectAsStateWithLifecycle()
 
                     NewsScreen(
-                        onBack = { navController.popBackStack() },
+                        setTopBar = setTopBar,
+                        topBarOwnerId = backstackEntry.id.toString(),
                         onEvent = vm::onEvent,
                         state = state.value,
                         onOpenNews = { newsId -> navController.navigate(NewsDetailRoute(newsId)) }
