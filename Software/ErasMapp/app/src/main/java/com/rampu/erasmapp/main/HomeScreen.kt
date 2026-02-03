@@ -1,7 +1,9 @@
 package com.rampu.erasmapp.main
 
 
+import android.text.style.LineHeightSpan
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,9 +27,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rampu.erasmapp.channels.domian.Channel
+import com.rampu.erasmapp.channels.ui.channels.channelIconForKey
 import com.rampu.erasmapp.common.ui.components.LoadingIndicator
+import com.rampu.erasmapp.common.ui.components.UserAvatar
 import com.rampu.erasmapp.eventCalendar.data.EventCalendarRepository
 import com.rampu.erasmapp.schedule.domain.ScheduleEvent
 import org.koin.androidx.compose.koinViewModel
@@ -57,7 +64,18 @@ fun HomeScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        item { Text("Welcome to ErasMapp!") }
+        item {
+            Text(
+                text = "Welcome to ErasMapp!",
+                fontSize = 42.sp,
+                lineHeight = 48.sp,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.W600,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         item { Spacer(modifier = Modifier.height(20.dp)) }
 
@@ -69,17 +87,20 @@ fun HomeScreen(
         }
 
         item { Spacer(modifier = Modifier.height(20.dp)) }
+
+        item {
+            ChannelsPreviewCard(
+                state = homeState,
+                onGoToChannels = onGoToChannels
+            )
+        }
+
+        item { Spacer(modifier = Modifier.height(20.dp)) }
         item {
             Button(
                 onClick = onSignOut
             ){
                 Text("Sign out")
-            }
-        }
-        item { Spacer(modifier = Modifier.height(20.dp)) }
-        item {
-            Button(onClick = onGoToSchedule) {
-                Text("Go to Schedule")
             }
         }
         item { Spacer(modifier = Modifier.height(20.dp)) }
@@ -110,13 +131,6 @@ fun HomeScreen(
                 Button(onClick = onGoToAdmin) {
                     Text("Admin console")
                 }
-            }
-        }
-
-        item { Spacer(modifier = Modifier.height(20.dp)) }
-        item{
-            Button(onClick = onGoToChannels) {
-                Text("Go  to channels")
             }
         }
 
@@ -231,6 +245,100 @@ private fun TodayScheduleRow(event: ScheduleEvent) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+    }
+}
+
+@Composable
+private fun ChannelsPreviewCard(
+    state: HomeUiState,
+    onGoToChannels: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(0.9f),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Channels",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            when {
+                state.isChannelsLoading -> {
+                    LoadingIndicator()
+                }
+
+                state.isChannelsSignedOut -> {
+                    Text(
+                        text = "Sign in to see channels.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                !state.channelsErrorMessage.isNullOrBlank() -> {
+                    Text(
+                        text = state.channelsErrorMessage ?: "Unable to load channels.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
+                state.channels.isEmpty() -> {
+                    Text(
+                        text = "No channels yet.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                else -> {
+                    state.channels.take(3).forEach { channel ->
+                        ChannelRow(channel = channel)
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(onClick = onGoToChannels) {
+                    Text("Go to Channels")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChannelRow(channel: Channel) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val icon = channelIconForKey(channel.iconKey)
+        UserAvatar(label = channel.title, icon = icon, size = 40.dp)
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = channel.title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            if (!channel.topic.isNullOrBlank()) {
+                Text(
+                    text = channel.topic,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }

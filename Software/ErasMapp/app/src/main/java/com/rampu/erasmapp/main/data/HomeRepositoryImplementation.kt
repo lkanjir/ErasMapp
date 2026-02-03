@@ -1,5 +1,7 @@
 package com.rampu.erasmapp.main.data
 
+import com.rampu.erasmapp.channels.domian.ChannelSyncState
+import com.rampu.erasmapp.channels.domian.IChannelRepository
 import com.rampu.erasmapp.schedule.data.ScheduleRepository
 import com.rampu.erasmapp.schedule.data.ScheduleSyncState
 import com.rampu.erasmapp.schedule.domain.ScheduleEvent
@@ -9,8 +11,10 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-class HomeRepositoryImplementation(private val scheduleRepository: ScheduleRepository):
-    HomeRepository {
+class HomeRepositoryImplementation(
+    private val scheduleRepository: ScheduleRepository,
+    private val channelRepository: IChannelRepository
+) : HomeRepository {
     override fun observeTodaySchedule(): Flow<HomeScheduleState> {
         return scheduleRepository.observeEvents().map{ state ->
             when(state){
@@ -27,6 +31,17 @@ class HomeRepositoryImplementation(private val scheduleRepository: ScheduleRepos
                         )
                     HomeScheduleState.Success(todaysEvents)
                 }
+            }
+        }
+    }
+
+    override fun observeChannels(): Flow<HomeChannelsState> {
+        return channelRepository.observeChannels().map { state ->
+            when (state) {
+                ChannelSyncState.Loading -> HomeChannelsState.Loading
+                ChannelSyncState.SignedOut -> HomeChannelsState.SignOut
+                is ChannelSyncState.Error -> HomeChannelsState.Error(state.message)
+                is ChannelSyncState.Success -> HomeChannelsState.Success(state.channels)
             }
         }
     }

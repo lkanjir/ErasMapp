@@ -2,6 +2,8 @@ package com.rampu.erasmapp.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rampu.erasmapp.channels.domian.Channel
+import com.rampu.erasmapp.main.data.HomeChannelsState
 import com.rampu.erasmapp.main.data.HomeRepository
 import com.rampu.erasmapp.main.data.HomeScheduleState
 import com.rampu.erasmapp.schedule.domain.ScheduleEvent
@@ -16,6 +18,10 @@ data class HomeUiState(
     val scheduleErrorMessage: String? = null,
     val isSignedOut: Boolean = false,
     val todaySchedule: List<ScheduleEvent> = emptyList(),
+    val isChannelsLoading: Boolean = true,
+    val channelsErrorMessage: String? = null,
+    val channels: List<Channel> = emptyList(),
+    val isChannelsSignedOut: Boolean = false,
 )
 
 class HomeViewModel(
@@ -24,9 +30,11 @@ class HomeViewModel(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
     private var observeJob: Job? = null
+    private var observeChannelsJob: Job? = null
 
     init {
         observeTodaySchedule()
+        observeChannels()
     }
 
     private fun observeTodaySchedule() {
@@ -66,6 +74,50 @@ class HomeViewModel(
                             scheduleErrorMessage = "Sign in to view your schedule.",
                             isSignedOut = true,
                             todaySchedule = emptyList()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeChannels() {
+        observeChannelsJob?.cancel()
+        observeChannelsJob = viewModelScope.launch {
+            repository.observeChannels().collect { state ->
+                when (state) {
+                    HomeChannelsState.Loading -> _uiState.update {
+                        it.copy(
+                            isChannelsLoading = true,
+                            channelsErrorMessage = null,
+                            isChannelsSignedOut = false
+                        )
+                    }
+
+                    is HomeChannelsState.Success -> _uiState.update {
+                        it.copy(
+                            isChannelsLoading = false,
+                            channelsErrorMessage = null,
+                            isChannelsSignedOut = false,
+                            channels = state.channels
+                        )
+                    }
+
+                    is HomeChannelsState.Error -> _uiState.update {
+                        it.copy(
+                            isChannelsLoading = false,
+                            channelsErrorMessage = state.message,
+                            isChannelsSignedOut = false,
+                            channels = emptyList()
+                        )
+                    }
+
+                    HomeChannelsState.SignOut -> _uiState.update {
+                        it.copy(
+                            isChannelsLoading = false,
+                            channelsErrorMessage = "Sign in to view channels.",
+                            isChannelsSignedOut = true,
+                            channels = emptyList()
                         )
                     }
                 }
