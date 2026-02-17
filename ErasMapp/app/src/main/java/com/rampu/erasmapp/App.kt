@@ -18,15 +18,10 @@ class App : Application(){
     override fun onCreate() {
         super.onCreate()
 
-        try {
-            val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
-            val apiKey = appInfo.metaData.getString("com.google.android.geo.API_KEY")
-            val key = "AIzaSyDpUS87wnYRaguLWJJ-D-kMzfawrA3HTbk";
-            if (!Places.isInitialized()) {
-                Places.initialize(applicationContext, key)
-            }
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
+        val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+        val placesApiKey = appInfo.metaData?.getString("com.google.android.geo.API_KEY").orEmpty()
+        if (placesApiKey.isNotBlank() && !Places.isInitialized()) {
+            Places.initialize(applicationContext, placesApiKey)
         }
 
         startKoin {
