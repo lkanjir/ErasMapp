@@ -1,4 +1,5 @@
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -68,11 +69,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
         compose = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
 
@@ -96,46 +100,26 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
 
-    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore")
-
-    implementation("androidx.credentials:credentials:1.3.0")
-    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
-    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
-
-    val nav_version = "2.9.5"
-
-    implementation("androidx.navigation:navigation-compose:$nav_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-
-    val koin_version = "4.1.0"
-    implementation(project.dependencies.platform("io.insert-koin:koin-bom:$koin_version"))
-    implementation("io.insert-koin:koin-core")
-    implementation("io.insert-koin:koin-compose")
-    implementation("io.insert-koin:koin-compose-viewmodel")
-    implementation("io.insert-koin:koin-compose-viewmodel-navigation")
-
-
-    implementation("io.insert-koin:koin-androidx-compose:${koin_version}")
-
-    // Kalendar
-    implementation("com.kizitonwose.calendar:compose:2.9.0")
-
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.9.3")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(project.dependencies.platform("io.insert-koin:koin-bom:4.1.0"))
+    implementation(libs.koin.core)
+    implementation(libs.koin.compose)
+    implementation(libs.koin.compose.viewmodel)
+    implementation(libs.koin.compose.viewmodel.navigation)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.compose)
+    implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation (libs.compose.material.icons)
-
-
-            // Google Maps SDK for Android
     implementation(libs.places)
     implementation(libs.play.services.maps)
-
-// Google maps Compose
     implementation(libs.maps.compose)
-
-    // Calendar
-    implementation("com.kizitonwose.calendar:compose:2.9.0")
-
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 }

@@ -22,7 +22,7 @@ class App : Application(){
             val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
             val apiKey = appInfo.metaData.getString("com.google.android.geo.API_KEY")
             val key = "AIzaSyDpUS87wnYRaguLWJJ-D-kMzfawrA3HTbk";
-            if (key != null && !Places.isInitialized()) {
+            if (!Places.isInitialized()) {
                 Places.initialize(applicationContext, key)
             }
         } catch (e: PackageManager.NameNotFoundException) {
